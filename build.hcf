@@ -1,0 +1,13 @@
+default:
+    cc      gcc
+    flags   -Wall -Wextra
+    dflags  -fsanitize=null,address -g -O0
+    src     src/*.c vshcfp/*.c
+    inc     include
+    name    hsll
+
+    exec    compile
+
+compile:
+    exec    1
+    1       $cc $src $flags $dflags -o $name -I$inc
