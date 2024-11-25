@@ -5,6 +5,23 @@
 
 #define PATH_MAX 1024
 
+
+int
+test_cd()
+{
+    if (!getenv("HOME"))
+    {
+        printf("cd: unset env \"HOME\"\n");
+        return -1;
+    }
+    if (!getenv("PWD"))
+    {
+        printf("cd: unset env \"PWD\"\n");
+        return -1;
+    }
+    return 0;
+}
+
 int
 cd(int argc, char **argv)
 {
@@ -13,9 +30,9 @@ cd(int argc, char **argv)
     switch (argc)
     {
         case 1:
-            if (!chdir(getenv("HOME") ?: "."))
+            if (!chdir(getenv("HOME")))
             {
-                setenv("PWD", getenv("HOME") ?: ".", 1);
+                setenv("PWD", getenv("HOME"), 1);
                 return 0;
             }
             printf("cd: Invalid args");
@@ -24,9 +41,23 @@ cd(int argc, char **argv)
         case 2:
             if (*argv[1] != '/')
             {
-                getcwd(dir, PATH_MAX);
-                strcat(dir, "/");
-                strcat(dir, argv[1]);
+                /* Using getcwd expand links */
+                strncpy(dir, getenv("PWD"), PATH_MAX);
+
+                /* If it is ., dont do nothing */
+                if (!strcmp(argv[1], "."))
+                    return 0;
+
+                /* If it is .., set the end of the string DIR to
+                 * the last '/' in the string */
+                if (!strcmp(argv[1], ".."))
+                    *(strrchr(dir, '/') ?: "") = 0;
+
+                else
+                {
+                    strcat(dir, "/");
+                    strcat(dir, argv[1]);
+                }
 
                 if (!chdir(dir))
                 {
@@ -37,6 +68,7 @@ cd(int argc, char **argv)
                 perror("cd");
                 return -1;
             }
+
 
             if (!chdir(argv[1]))
             {

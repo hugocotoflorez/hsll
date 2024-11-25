@@ -46,6 +46,10 @@ hsll_init()
     HcfOpts shell_opts;
     void   *s;
 
+    /* Test that HOME and PWD are accessible */
+    if (test_cd())
+        return -1;
+
     shell_opts = hcf_load(".hsllrc");
     prompt     = hcf_get(shell_opts, "options", "prompt") ?: prompt;
 

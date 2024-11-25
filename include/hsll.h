@@ -20,5 +20,6 @@ char  *path_variables_expansion(char *);
 
 /* cd.c */
 int cd(int argc, char **argv);
+int test_cd();
 
 #endif // !HSLL_H

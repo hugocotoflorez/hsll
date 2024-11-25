@@ -6,10 +6,11 @@
 - pipe |
 - bg &
 - multiple commands &&
-- cd,
+- cd: ../..,
 - which, where
 
 ## Things that (may) work
 
 - Path variables expansion
 - Prompt (colors and path variables)
+- cd (all except ../.. and - and advanced stuff)
