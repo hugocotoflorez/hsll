@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LINEMAX 100
+#define LINEMAX 2048
 
 HcfField *field_table    = NULL;
 char      key[LINEMAX]   = { '\0' };
@@ -49,6 +49,35 @@ __remove_spaces(char *str)
     return str;
 }
 
+/* STR is a string starting at '/'. This function return a pointer
+ * of the first char in STR that is not part of the escape character or NULL*/
+char *
+__parse_escape_sequences(char *str, char *c)
+{
+    /* This code sucks*/
+    if (str == NULL)
+    {
+        return NULL;
+    }
+    if (str[1] == 'e' && str[2] == '[')
+    {
+        *c = '\033';
+        return str + 2;
+    }
+    if (str[1] == '0' && str[2] == '3' && str[3] == '3' && str[4] == '[')
+    {
+        *c = '\033';
+        return str + 4;
+    }
+
+    if (str[1] == 'n')
+    {
+        *c = '\n';
+        return str + 2;
+    }
+    return "";
+}
+
 void
 __parse_line(HcfOpts *opts, char *line)
 {
@@ -56,6 +85,8 @@ __parse_line(HcfOpts *opts, char *line)
     char *current;
     char *temp;
     int   len;
+    char *c;
+    char  chr;
 
     /* Allow identation */
     line = __remove_spaces(line);
@@ -109,6 +140,22 @@ __parse_line(HcfOpts *opts, char *line)
             strcpy(key, buffer);
 
             current = __remove_spaces(current);
+
+            char *curr_start = current;
+            c                = current;
+
+            while ((current = __parse_escape_sequences((c = strchr(c, '\\')), &chr)))
+            {
+                if (*current)
+                {
+                    *c++ = chr;
+                    memmove(c, current, strlen(current) + 1);
+                    c = current - 1;
+                }
+                else
+                    ++c;
+            }
+            current = curr_start;
 
             /* Check for // (comment introducer).
              * If a '\' was placed before the "//", it

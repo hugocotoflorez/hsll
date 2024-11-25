@@ -22,15 +22,16 @@ __quit_handler()
 }
 
 char *
-prompt_evalue(char *prompt)
+__expand_variables(char *str)
 {
-    return prompt;
+    path_variables_expansion(str);
+    return str;
 }
 
 void
 __prompt()
 {
-    printf("%s", prompt_evalue(prompt));
+    printf("%s", __expand_variables(prompt));
     fflush(stdout);
 }
 
@@ -42,6 +43,7 @@ hsll_init()
 
     shell_opts = hcf_load(".hsllrc");
     prompt     = hcf_get(shell_opts, "options", "prompt") ?: prompt;
+    prompt     = realloc(prompt, LINELEN); // allow variable expansion
 
     assert(signal(SIGTERM, __quit_handler) != SIG_ERR);
 
@@ -49,6 +51,7 @@ hsll_init()
     {
         __prompt();
         get_input_line(line, LINELEN, stdin);
+        __expand_variables(line);
         execute(s = __split(line), NULL, NULL);
         free(s);
     }

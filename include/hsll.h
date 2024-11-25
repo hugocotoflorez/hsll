@@ -15,6 +15,7 @@ int is_builtin_command(char **command);
 int exec_builtin_command(char **command);
 
 /* hstring.c */
-char** __split(char*);
+char **__split(char *);
+char  *path_variables_expansion(char *);
 
 #endif // !HSLL_H
