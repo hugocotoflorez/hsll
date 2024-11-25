@@ -8,12 +8,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define LINELEN 1023
+#define LINELEN        1023
+#define DEFAULT_PROMPT ">> "
 
-
-int     __quit = 0;
-HcfOpts shell_opts;
-char   *prompt = ">> ";
+int   __quit = 0;
+char *prompt = DEFAULT_PROMPT;
 
 void
 __quit_handler()
@@ -31,19 +30,24 @@ __expand_variables(char *str)
 void
 __prompt()
 {
-    printf("%s", __expand_variables(prompt));
+    char *s = malloc(LINELEN);
+    if (!s)
+        prompt = DEFAULT_PROMPT;
+    strcpy(s, prompt);
+    printf("%s", __expand_variables(s));
     fflush(stdout);
+    free(s);
 }
 
 int
 hsll_init()
 {
-    char  line[LINELEN + 1];
-    void *s;
+    char    line[LINELEN + 1];
+    HcfOpts shell_opts;
+    void   *s;
 
     shell_opts = hcf_load(".hsllrc");
     prompt     = hcf_get(shell_opts, "options", "prompt") ?: prompt;
-    prompt     = realloc(prompt, LINELEN); // allow variable expansion
 
     assert(signal(SIGTERM, __quit_handler) != SIG_ERR);
 
@@ -64,9 +68,6 @@ hsll_init()
 int
 execute(char *command[const], int *__stdin, int *__stdout)
 {
-    int old_stdin;
-    int old_stdout;
-
     if (!(command && command[0]))
         return -1;
 
@@ -78,27 +79,29 @@ execute(char *command[const], int *__stdin, int *__stdout)
 
         case 0:
             if (__stdin)
-            {
-                old_stdin = dup(STDIN_FILENO);
                 dup2(*__stdin, STDIN_FILENO);
-            }
 
             if (__stdout)
-            {
-                old_stdout = dup(STDOUT_FILENO);
                 dup2(*__stdout, STDOUT_FILENO);
-            }
 
             if (is_builtin_command(command))
             {
                 exit(exec_builtin_command(command));
             }
 
+            /* Exception: executed in parent */
+            if (!strcmp(command[0], "cd"))
+                exit(0);
+
             execvp(command[0], command);
             perror("execv");
             exit(-1);
 
         default:
+            /* cd have to be executed in the parent */
+            if (!strcmp(command[0], "cd"))
+                exec_builtin_command(command);
+
             wait(NULL);
     }
     return 0;

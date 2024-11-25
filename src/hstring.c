@@ -45,7 +45,6 @@ char *
 path_variables_expansion(char *str)
 {
     char *c = str;
-    char *d = str;
     char *close;
     char *env;
     int   is_valid;

@@ -18,4 +18,7 @@ int exec_builtin_command(char **command);
 char **__split(char *);
 char  *path_variables_expansion(char *);
 
+/* cd.c */
+int cd(int argc, char **argv);
+
 #endif // !HSLL_H
