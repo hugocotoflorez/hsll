@@ -7,8 +7,13 @@
 void get_input_line(char *, int, FILE *);
 
 /* shell.c */
-int hsll_init();
-int execute(char **command, int *__stdin, int *__stdout);
+int  hsll_init();
+void print_prompt();
+
+/* execute.c */
+int   execute(char **command, int *__stdin, int *__stdout);
+char *execute_get_output(char **command);
+void  kill_child();
 
 /* builtin.c */
 int is_builtin_command(char **command);

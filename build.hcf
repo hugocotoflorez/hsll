@@ -11,3 +11,8 @@ default:
 compile:
     exec    1
     1       $cc $src $flags $dflags -o $name -I$inc
+
+
+install:
+    exec    compile 1
+    1       mv ./$name ~/.local/bin/$name

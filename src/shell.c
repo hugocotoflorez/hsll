@@ -15,8 +15,6 @@
 int       __quit = 0;
 char     *prompt = DEFAULT_PROMPT;
 HcfField *aliases;
-// PID of proc in execution or 0 if nothing is running
-int child = 0;
 
 char *
 __expand_variables(char *str)
@@ -26,7 +24,7 @@ __expand_variables(char *str)
 }
 
 void
-__prompt()
+print_prompt()
 {
     char *s = malloc(LINELEN);
     if (!s)
@@ -40,23 +38,6 @@ void
 __quit_handler()
 {
     __quit = 1;
-}
-
-/* Send sigterm to proc in execution */
-void
-__kill_child()
-{
-    if (child)
-    {
-        kill(child, SIGTERM);
-        /* ^C is printed in the same line as the prompt, this solve that */
-        puts("");
-    }
-    else
-    {
-        puts("");
-        __prompt();
-    }
 }
 
 char *
@@ -96,6 +77,12 @@ __expand_alias(char *str)
     return str;
 }
 
+void
+__change_env(const char *name, char *value)
+{
+    setenv(name, value, 1);
+}
+
 int
 hsll_init()
 {
@@ -111,12 +98,15 @@ hsll_init()
     aliases    = hcf_get_field(shell_opts, "aliases");
     prompt     = hcf_get(shell_opts, "options", "prompt") ?: prompt;
 
+    __change_env("SHELL",
+                 execute_get_output((char *[]) { "which", "hsll" }));
+
     assert(signal(SIGTERM, __quit_handler) != SIG_ERR);
-    assert(signal(SIGINT, __kill_child) != SIG_ERR);
+    assert(signal(SIGINT, kill_child) != SIG_ERR);
 
     while (!__quit)
     {
-        __prompt();
+        print_prompt();
         get_input_line(line, LINELEN, stdin);
         __expand_alias(line);
         __expand_variables(line);
@@ -126,48 +116,5 @@ hsll_init()
 
     hcf_destroy(&shell_opts);
 
-    return 0;
-}
-
-int
-execute(char *command[const], int *__stdin, int *__stdout)
-{
-    if (!(command && command[0]))
-        return -1;
-
-    switch (child = fork())
-    {
-        case -1:
-            perror("fork");
-            exit(1);
-
-        case 0:
-            if (__stdin)
-                dup2(*__stdin, STDIN_FILENO);
-
-            if (__stdout)
-                dup2(*__stdout, STDOUT_FILENO);
-
-            if (is_builtin_command(command))
-            {
-                exit(exec_builtin_command(command));
-            }
-
-            /* Exception: executed in parent */
-            if (!strcmp(command[0], "cd"))
-                exit(0);
-
-            execvp(command[0], command);
-            perror("execv");
-            exit(-1);
-
-        default:
-            /* cd have to be executed in the parent */
-            if (!strcmp(command[0], "cd"))
-                exec_builtin_command(command);
-
-            wait(NULL);
-            child = 0;
-    }
     return 0;
 }
