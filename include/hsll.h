@@ -3,12 +3,19 @@
 
 #include <stdio.h> // FILE*
 
+#define LINELEN 1023
+
 /* io.c */
 void get_input_line(char *, int, FILE *);
+void init_keyboard_handler();
+void destroy_keyboard_handler();
 
 /* shell.c */
-int  hsll_init();
-void print_prompt();
+int   hsll_init();
+void  print_prompt();
+char *expand_alias(char *str);
+char *expand_variables(char *str);
+void  quit_handler();
 
 /* execute.c */
 int   execute(char **command, int *__stdin, int *__stdout);

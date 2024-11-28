@@ -1,17 +1,18 @@
 #include "../include/hsll.h"
 #include <signal.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-int
-hsll__builtin_exit()
+static int
+builtin_exit()
 {
     kill(getppid(), SIGTERM);
     return 0;
 }
 
-int
-hsll__builtin_cd(char **command)
+static int
+builtin_cd(char **command)
 {
     int count = 0;
     while (command[count])
@@ -31,10 +32,10 @@ int
 exec_builtin_command(char **command)
 {
     if (!strcmp(command[0], "exit"))
-        return hsll__builtin_exit();
+        return builtin_exit();
 
     if (!strcmp(command[0], "cd"))
-        return hsll__builtin_cd(command);
+        return builtin_cd(command);
 
     return 0; // command exit status
 }

@@ -80,11 +80,12 @@ execute(char *command[const], int *__stdin, int *__stdout)
     return exit_status;
 }
 
+/* The string that is returned has the same size as strlen(output)
+ * and have to be free as it is returned using strdup() */
 char *
 execute_get_output(char *command[const])
 {
     int  temp_stdout;
-    int  len;
     char buf[MAXOUTLEN + 1]; // output buffer
 
     /* Open a temp file */
@@ -98,11 +99,11 @@ execute_get_output(char *command[const])
     execute(command, NULL, &temp_stdout);
 
     /* Move content of temp file to output buffer */
-    printf("Trying to read from file...\n");
+    //printf("Trying to read from file...\n");
     lseek(temp_stdout, 0, SEEK_SET);
     read(temp_stdout, buf, MAXOUTLEN);
     buf[MAXOUTLEN] = 0;
-    printf("Read %d chars!\n", (int) strlen(buf));
+    //printf("Read %d chars!\n", (int) strlen(buf));
 
     return strdup(buf);
 }

@@ -2,7 +2,7 @@ default:
     cc      gcc
     flags   -Wall -Wextra
     dflags  -fsanitize=null,address -g -O0
-    src     src/*.c vshcfp/*.c
+    src     src/*.c vshcfp/*.c vshkh/*.c
     inc     include
     name    hsll
 

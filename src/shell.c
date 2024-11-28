@@ -8,7 +8,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define LINELEN        1023
 #define DEFAULT_PROMPT ">> "
 
 // If __quit is 1, the shell exits in the next loop step
@@ -17,7 +16,7 @@ char     *prompt = DEFAULT_PROMPT;
 HcfField *aliases;
 
 char *
-__expand_variables(char *str)
+expand_variables(char *str)
 {
     path_variables_expansion(str);
     return str;
@@ -30,18 +29,19 @@ print_prompt()
     if (!s)
         prompt = DEFAULT_PROMPT;
     strcpy(s, prompt);
-    printf("%s", __expand_variables(s));
+    printf("%s", expand_variables(s));
     fflush(stdout);
     free(s);
 }
+
 void
-__quit_handler()
+quit_handler()
 {
     __quit = 1;
 }
 
 char *
-__expand_alias(char *str)
+expand_alias(char *str)
 {
     int   index;
     char *alias;
@@ -88,32 +88,38 @@ hsll_init()
 {
     char    line[LINELEN + 1];
     HcfOpts shell_opts;
+    char   *out;
     void   *s;
 
     /* Test that HOME and PWD are accessible */
     if (test_cd())
         return -1;
 
+    init_keyboard_handler();
+
     shell_opts = hcf_load(".hsllrc");
     aliases    = hcf_get_field(shell_opts, "aliases");
     prompt     = hcf_get(shell_opts, "options", "prompt") ?: prompt;
 
-    __change_env("SHELL",
-                 execute_get_output((char *[]) { "which", "hsll" }));
+    __change_env("SHELL", out = execute_get_output((char *[]) { "which", "hsll" }));
+    free(out);
 
-    assert(signal(SIGTERM, __quit_handler) != SIG_ERR);
+
+    assert(signal(SIGTERM, quit_handler) != SIG_ERR);
     assert(signal(SIGINT, kill_child) != SIG_ERR);
 
     while (!__quit)
     {
         print_prompt();
-        get_input_line(line, LINELEN, stdin);
-        __expand_alias(line);
-        __expand_variables(line);
+        // if input file is null, get input from keyboard handler
+        get_input_line(line, LINELEN, NULL);
+        expand_alias(line);
+        expand_variables(line);
         execute(s = __split(line), NULL, NULL);
         free(s);
     }
 
+    destroy_keyboard_handler();
     hcf_destroy(&shell_opts);
 
     return 0;

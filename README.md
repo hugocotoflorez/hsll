@@ -7,7 +7,7 @@
 - bg &
 - multiple commands &&
 - cd: ../..,
-- which, where
+- which
 
 ## Things that (may) work
 
