@@ -3,6 +3,7 @@ options:
 
 aliases:
     ls      eza
+    grep    grep --color=auto
 
 
 

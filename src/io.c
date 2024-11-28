@@ -6,17 +6,13 @@
 #include <string.h>
 #include <unistd.h>
 
-void
-tab_suggestions()
+/* Pointer to the current input buffer */
+char *buffered_input;
+
+char *
+get_buffered_input()
 {
-    char *out;
-    printf("\033[s"); // save current position
-    printf("\033[E"); // goto next line
-    out = execute_get_output((char *[]) { "ls", "-aw0" });
-    printf("%s", out);
-    printf("\033[u"); // restore saved position
-    free(out);
-    fflush(stdout);
+    return buffered_input;
 }
 
 void
@@ -38,7 +34,7 @@ static void
 manage_input(char *line, Keypress kp, int *iptr)
 {
     if (kh_has_ctrl(kp))
-        printf("^");
+        putchar('^');
 
     if (kh_is_arrow(kp))
         switch (kp.c)
@@ -74,13 +70,13 @@ manage_input(char *line, Keypress kp, int *iptr)
 
             case ' ':
                 putchar(kp.c);
-                if (kp.mods == NO_MOD)
+                if (kp.mods == NO_MOD || kp.mods == SHIFT_MOD)
                     line[(*iptr)++] = kp.c;
                 break;
 
             default:
                 printf("%s", REPR[(int) kp.c]);
-                if (kp.mods == NO_MOD)
+                if (kp.mods == NO_MOD || kp.mods == SHIFT_MOD)
                     line[(*iptr)++] = kp.c;
                 break;
         }
@@ -107,12 +103,15 @@ get_keyboard_input(char *line, int linelen)
 
         manage_input(line, kp, &input_ptr);
     }
+    //printf("\nLINE: '%s'\n", line);
     line[input_ptr] = 0;
 }
 
 void
 get_input_line(char *line, int linelen, FILE *input_file)
 {
+    buffered_input = line;
+
     if (input_file)
         while (!fgets(line, linelen, input_file))
             usleep(500);

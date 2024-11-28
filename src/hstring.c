@@ -30,7 +30,15 @@ __split(char *str)
         str       = c + 1;
         ++size;
     }
+
     arr = realloc(arr, sizeof(char *) * (size + 2));
+
+    if (!arr)
+    {
+        perror("split.realloc");
+        exit(1);
+    }
+
     if (*str)
     {
         arr[size++] = str;
@@ -40,6 +48,95 @@ __split(char *str)
     return arr;
 }
 
+char **
+argv_dup(char **argv)
+{
+    int    len;
+    char **ret;
+
+    for (len = 0; argv[len]; ++len)
+        ;
+
+    ret = malloc(sizeof(char *) * (len + 1));
+    memmove(ret, argv, sizeof(char *) * (len + 1));
+
+    return ret;
+}
+
+char **
+__append(char ***argv, char *s)
+{
+    int len;
+
+    for (len = 0; (*argv)[len]; ++len)
+        ;
+
+    *argv = realloc(*argv, sizeof(char *) * (len + 2));
+    if (!*argv)
+    {
+        perror("append.realloc");
+        exit(1);
+    }
+    (*argv)[len]     = s;
+    (*argv)[len + 1] = NULL;
+
+    return *argv;
+}
+
+/* Append src to dest and free src */
+char **
+__extend(char ***dest, char **src)
+{
+    int len_src;
+    int len_dest;
+
+    if (!*dest || !src)
+    {
+        printf("NULL dest or src\n");
+        return *dest;
+    }
+
+    // printf("DEST: ");
+    for (len_dest = 0; (*dest)[len_dest]; ++len_dest)
+        ;
+    // printf("%s ", (*dest)[len_dest]);
+    // puts("");
+
+    // printf("SRC: ");
+    for (len_src = 0; src[len_src]; ++len_src)
+        ;
+    // printf("%s ", src[len_src]);
+    // puts("");
+
+
+    if (len_src == 0)
+    {
+        // printf("SRC len=0\n");
+        free(src);
+        return *dest;
+    }
+
+    *dest = realloc(*dest, sizeof(char *) * (len_src + len_dest + 2));
+
+    if (!*dest)
+    {
+        perror("extend.realloc");
+        exit(1);
+    }
+
+    // printf("WITHOUT free DEST\n");
+    // memmove(*dest, *dest, sizeof(char *) * len_dest); // as not using realloc for this
+
+    memmove((*dest) + len_dest, src, sizeof(char *) * (len_src + 1));
+
+    // printf("FINAL: ");
+    // for (int i = 0; (*dest)[i]; ++i)
+    // printf("%s ", (*dest)[i]);
+    // puts("");
+
+    free(src);
+    return *dest;
+}
 
 char *
 path_variables_expansion(char *str)
@@ -60,7 +157,7 @@ path_variables_expansion(char *str)
 
         if (c[1] == '{')
         {
-            close = strchr(c+1, '}');
+            close = strchr(c + 1, '}');
             ++env;
         }
 
@@ -100,13 +197,13 @@ path_variables_expansion(char *str)
 
         // printf(": %s\n", env);
         //  printf("C: %s\n", c);
-        //printf("CLOSE+1: %s\n", close + 1);
+        // printf("CLOSE+1: %s\n", close + 1);
 
         if (env)
             memmove(c + strlen(env ?: "") + (need_pad ? 1 : 0), close + 1,
                     strlen(close + 1) + 1);
 
-        //printf("AFTER MEMMOVE: %s\n", str);
+        // printf("AFTER MEMMOVE: %s\n", str);
 
         if (env)
             memmove(c, env, strlen(env ?: ""));
@@ -114,8 +211,7 @@ path_variables_expansion(char *str)
         if (need_pad)
             c[strlen(env ?: "")] = need_pad;
 
-        //printf("STR: %s\n", str);
-
+        // printf("STR: %s\n", str);
     }
 
     return str;

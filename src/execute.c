@@ -28,11 +28,15 @@ kill_child()
     }
 }
 
-
-int
-execute(char *command[const], int *__stdin, int *__stdout)
+/* Execute a command. The command cant have pipes or anything that
+ * would be not executed */
+static int
+execute_raw(char **command, int *__stdin, int *__stdout)
 {
-    int exit_status = -1;
+    int    exit_status = -1;
+    char   buf[MAXOUTLEN];
+    char **temp_command = NULL;
+    int    len;
 
     if (!(command && command[0]))
         return exit_status;
@@ -44,10 +48,40 @@ execute(char *command[const], int *__stdin, int *__stdout)
             exit(1);
 
         case 0:
-            if (__stdin && dup2(*__stdin, STDIN_FILENO) == -1)
+            if (__stdin)
             {
-                perror("dup2 stdin");
-                exit(-1);
+                if (dup2(*__stdin, STDIN_FILENO) == -1)
+                {
+                    perror("dup2 stdin");
+                    exit(-1);
+                }
+                else
+                {
+                    read(*__stdin, buf, MAXOUTLEN - 2);
+
+                    // printf("Command before EXTEND: ");
+                    // for (str = command; *str; ++str)
+                    // printf("%s ", *str);
+                    // puts("");
+
+                    temp_command = argv_dup(command);
+                    if (buf[0])
+                    {
+                        len = strlen(buf);
+                        memmove(buf + 1, buf, len);
+                        buf[0]       = '"';
+                        buf[len]     = '"';
+                        buf[len + 1] = '\0';
+                        __append(&temp_command, buf);
+                    }
+                    //__extend(&temp_command, __split(buf));
+                    command = temp_command;
+
+                    printf("Command after EXTEND: ");
+                    for (char **str = command; *str; ++str)
+                        printf("%s ", *str);
+                    puts("");
+                }
             }
 
             if (__stdout && dup2(*__stdout, STDOUT_FILENO) == -1)
@@ -77,13 +111,15 @@ execute(char *command[const], int *__stdin, int *__stdout)
             wait(&exit_status);
             child = 0;
     }
+
+    free(temp_command);
     return exit_status;
 }
 
 /* The string that is returned has the same size as strlen(output)
  * and have to be free as it is returned using strdup() */
 char *
-execute_get_output(char *command[const])
+execute_get_output(char **command)
 {
     int  temp_stdout;
     char buf[MAXOUTLEN + 1]; // output buffer
@@ -96,14 +132,96 @@ execute_get_output(char *command[const])
         return NULL;
     }
 
-    execute(command, NULL, &temp_stdout);
+    execute_raw(command, NULL, &temp_stdout);
 
     /* Move content of temp file to output buffer */
-    //printf("Trying to read from file...\n");
+    // printf("Trying to read from file...\n");
     lseek(temp_stdout, 0, SEEK_SET);
     read(temp_stdout, buf, MAXOUTLEN);
     buf[MAXOUTLEN] = 0;
-    //printf("Read %d chars!\n", (int) strlen(buf));
+    // printf("Read %d chars!\n", (int) strlen(buf));
 
     return strdup(buf);
+}
+
+int
+execute(char **command, int *__stdin, int *__stdout)
+{
+    /* !!!!! STDIN is closed. Hope this isnt a problem. It is
+     * better not to use stdin manually. Pipes are yet
+     * implemented! */
+    char **to_exec;
+    int    i;
+    int    ret_code = 0;
+    // char   buf[MAXOUTLEN + 1];
+
+    int temp_stdin;
+    int temp_stdout;
+
+    if (__stdin)
+        temp_stdin = *__stdin;
+    else
+        temp_stdin = dup(STDIN_FILENO);
+
+    /* temp_in      dup(STDIN)
+     * temp_out     NEW
+     *
+     * temp_in      NEW     <- close prev temp_in (dup(STDIN))
+     * temp_out     NEW2
+     *
+     * temp_in      NEW2    <- close prev temp_in (NEW)
+     * temp_out     NULL    <- stdout
+     *                      <- close temp_in (NEW2)
+     */
+
+    /* Set the ddefault entry point to the fist command item */
+    to_exec = command;
+
+    /* Search for a pipe ('|')
+     * If it is found, execute the first part of the command
+     * and pass the output to the second part of the command */
+    for (i = 0; command[i]; ++i)
+    {
+        // printf("COMMAND[%d]=%s\n", i, command[i]);
+        if (!strcmp(command[i], "|"))
+        {
+            /* New stdout */
+            temp_stdout = fileno(tmpfile());
+
+            command[i] = NULL;
+
+            ////////// PRINT
+            // read(temp_stdout, buf, MAXOUTLEN);
+            // buf[MAXOUTLEN] = 0;
+            // printf("BUFFERED STDIN:%s\n", buf);
+            // lseek(temp_stdin, 0, SEEK_SET);
+            ////////// PRINT CLOSE
+
+            ret_code = execute_raw(to_exec, &temp_stdin, &temp_stdout);
+            to_exec  = command + i + 1;
+
+            if (ret_code != 0)
+            {
+                printf("Exit due to ret code %d\n", ret_code);
+                return ret_code;
+            }
+            // printf("TO_EXEC[0]=%s\n", to_exec[0]);
+
+            /* stdout -> stdin */
+            close(temp_stdin);
+            temp_stdin = temp_stdout;
+            lseek(temp_stdin, 0, SEEK_SET);
+        }
+    }
+    ////////// PRINT
+    // read(temp_stdout, buf, MAXOUTLEN);
+    // buf[MAXOUTLEN] = 0;
+    // printf("BUFFERED STDIN:%s\n", buf);
+    // lseek(temp_stdin, 0, SEEK_SET);
+    ////////// PRINT CLOSE
+
+    ret_code = execute_raw(to_exec, &temp_stdin, __stdout);
+
+    close(temp_stdin);
+    return ret_code;
 }
