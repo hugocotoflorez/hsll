@@ -23,28 +23,37 @@ tab_suggestions()
 
     if (len == 0)
     {
-        printf("Tab with nothing written");
+        // printf("Tab with nothing written");
         goto __exit;
-        return;
     }
 
     /* Create the pattern
      * such as (already written command)([a-zA-Z0-9-]*) */
-    strcat(pattern, s[len - 1]);
+    if (len > 1)
+        strcat(pattern, s[len - 1]);
+    else
+        strcat(pattern, "-");
+
     strcat(pattern, "\\[a-zA-Z0-9-\\]\\*");
 
     printf("\033[s"); // save current position
     printf("\033[E"); // goto next line
 
+    //printf("Suggestion: man %s | grep -oe %s -m %s\n", s[0], pattern, SUGGEST_NUM);
+
+    // ESTO DE AQUI DA MEMLEAK NO SE PORQUE
+    //out = execute_get_output((char *[]) { "ls -a" , NULL });
+    /*
     out = execute_get_output((char *[]) { "man", s[0], "|", "grep", "-oe",
                                           pattern, "-m", SUGGEST_NUM, NULL });
+     */
 
-    printf("%s", out);
+    printf("%s (strlen %d)", out, (int)strlen(out));
     printf("\033[u"); // restore saved position
+    fflush(stdout);
 
 __exit:
     free(s);
     free(temp);
     free(out);
-    fflush(stdout);
 }

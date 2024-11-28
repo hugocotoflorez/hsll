@@ -33,10 +33,8 @@ kill_child()
 static int
 execute_raw(char **command, int *__stdin, int *__stdout)
 {
-    int    exit_status = -1;
-    char   buf[MAXOUTLEN];
+    int    exit_status  = -1;
     char **temp_command = NULL;
-    int    len;
 
     if (!(command && command[0]))
         return exit_status;
@@ -50,37 +48,11 @@ execute_raw(char **command, int *__stdin, int *__stdout)
         case 0:
             if (__stdin)
             {
+                lseek(*__stdin, 0, SEEK_SET);
                 if (dup2(*__stdin, STDIN_FILENO) == -1)
                 {
                     perror("dup2 stdin");
                     exit(-1);
-                }
-                else
-                {
-                    read(*__stdin, buf, MAXOUTLEN - 2);
-
-                    // printf("Command before EXTEND: ");
-                    // for (str = command; *str; ++str)
-                    // printf("%s ", *str);
-                    // puts("");
-
-                    temp_command = argv_dup(command);
-                    if (buf[0])
-                    {
-                        len = strlen(buf);
-                        memmove(buf + 1, buf, len);
-                        buf[0]       = '"';
-                        buf[len]     = '"';
-                        buf[len + 1] = '\0';
-                        __append(&temp_command, buf);
-                    }
-                    //__extend(&temp_command, __split(buf));
-                    command = temp_command;
-
-                    printf("Command after EXTEND: ");
-                    for (char **str = command; *str; ++str)
-                        printf("%s ", *str);
-                    puts("");
                 }
             }
 
@@ -132,7 +104,7 @@ execute_get_output(char **command)
         return NULL;
     }
 
-    execute_raw(command, NULL, &temp_stdout);
+    execute(command, NULL, &temp_stdout);
 
     /* Move content of temp file to output buffer */
     // printf("Trying to read from file...\n");

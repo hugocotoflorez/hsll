@@ -89,6 +89,7 @@ hsll_init()
     char    line[LINELEN + 1];
     HcfOpts shell_opts;
     void   *s;
+    void   *out;
 
     /* Test that HOME and PWD are accessible */
     if (test_cd())
@@ -100,8 +101,8 @@ hsll_init()
     aliases    = hcf_get_field(shell_opts, "aliases");
     prompt     = hcf_get(shell_opts, "options", "prompt") ?: prompt;
 
-    //__change_env("SHELL", out = execute_get_output((char *[]) { "which", "hsll", NULL }));
-    //free(out);
+    __change_env("SHELL", out = execute_get_output((char *[]) { "which", "hsll", NULL }));
+    free(out);
 
 
     assert(signal(SIGTERM, quit_handler) != SIG_ERR);
