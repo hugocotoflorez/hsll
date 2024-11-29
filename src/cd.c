@@ -48,6 +48,20 @@ cd(int argc, char **argv)
                 if (!strcmp(argv[1], "."))
                     return 0;
 
+                /* If it start with ../ do a cd .. and then
+                 * cd the remaining path recursivelly */
+                if (!memcmp(argv[1], "../", 3))
+                {
+                    cd(2, (char *[]) { "cd", ".." });
+
+                    if (argv[1][3] != '\0')
+                        /* Check that argv[1] is not just "../" */
+                        cd(2, (char *[]) { "cd", argv[1] + 3 });
+
+                    return 0;
+                }
+
+
                 /* If it is .., set the end of the string DIR to
                  * the last '/' in the string */
                 if (!strcmp(argv[1], ".."))
