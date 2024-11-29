@@ -89,7 +89,7 @@ hsll_init()
     char    line[LINELEN + 1];
     HcfOpts shell_opts;
     void   *s;
-    void   *out;
+    void   *out = NULL;
 
     /* Test that HOME and PWD are accessible */
     if (test_cd())
@@ -101,7 +101,9 @@ hsll_init()
     aliases    = hcf_get_field(shell_opts, "aliases");
     prompt     = hcf_get(shell_opts, "options", "prompt") ?: prompt;
 
-    __change_env("SHELL", out = execute_get_output((char *[]) { "which", "hsll", NULL }));
+    out = execute_get_output((char *[]) { "which", "hsll", NULL });
+    if (out)
+        __change_env("SHELL", out);
     free(out);
 
 
@@ -119,8 +121,9 @@ hsll_init()
         free(s);
     }
 
-    destroy_keyboard_handler();
     hcf_destroy(&shell_opts);
+    destroy_keyboard_handler();
+    printf("Destroying stuff\n");
 
     return 0;
 }
