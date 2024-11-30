@@ -83,7 +83,7 @@ tab_suggestions()
 
     fflush(stdout);
 
-__exit:
+    //__exit:
     free(s);
     free(temp);
     free(out);

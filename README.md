@@ -3,18 +3,17 @@
 ## TODO
 
 - redireccionamiento >, >>, <
-- pipe |
 - bg &
 - multiple commands &&
-- cd: ../..,
-- which
+- completion
+- which (dont expand alias)
 
 ## Things that (may) work
 
 - Config file: ./.hsllrc
 - Path variables expansion
 - Prompt (colors and path variables)
-- cd (all except ../.. and - and advanced stuff)
+- cd ('-' and strange stuff is not implemented)
 - Aliases
 
 ## How to access shell variables
