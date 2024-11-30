@@ -75,9 +75,12 @@ __enable_raw_mode()
     raw_opts = origin_termios;
     cfmakeraw(&raw_opts);
     raw_opts.c_oflag |= (OPOST | ONLCR); // '\n' -> '\r\n'
+    raw_opts.c_cc[VMIN]  = 0;
+    raw_opts.c_cc[VTIME] = 2; // wait 200ms for input
     tcsetattr(STDIN_FILENO, TCSANOW, &raw_opts);
     flags = fcntl(STDIN_FILENO, F_GETFL, 0);
-    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+    //  READ is blocking. It returns after VTIME * 100 ms
+    // fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 }
 
 /* Return terminal to normal mode. this function HAVE TO BE CALLED AFTER
@@ -432,7 +435,18 @@ __keyboard_handler()
                     usleep(ST_NRD);
                     break;
 
-                default:              /* Something is read */
+                default: /* Something is read */
+
+                    /* If it is waiting for input and then
+                     * it is called toggle, the first read
+                     * would be executed if counter dont
+                     * make read terminate.*/
+                    if (!ENABLED)
+                    {
+                        lseek(STDIN_FILENO, -n, SEEK_CUR);
+                        break;
+                    }
+
                     if (*buf == 0x1b) // esc
                         /* It can be a escape keypress or a
                          * escape sequence, both cases are handled
@@ -498,6 +512,8 @@ kh_start()
     ENABLED = 1;
     if (!STARTED)
         pthread_create(&main_thread, NULL, __keyboard_handler, NULL);
+    else
+        __enable_raw_mode();
 }
 
 /* Pause the handler, the input would be read
@@ -506,6 +522,7 @@ void
 kh_pause()
 {
     ENABLED = 0;
+    __disable_raw_mode();
 }
 
 /* Toggle the handler status, the input would be read
@@ -515,7 +532,12 @@ kh_pause()
 void
 kh_toggle()
 {
-    ENABLED ^= 0x1;
+    ENABLED ^= 1;
+
+    if (ENABLED)
+        __enable_raw_mode();
+    else
+        __disable_raw_mode();
 }
 
 /* Close the handler and restore all values
