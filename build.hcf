@@ -5,8 +5,7 @@ default:
     src     src/*.c vshcfp/*.c vshkh/*.c
     inc     include
     name    hsll
-
-    exec    compile
+    exec    compile stats
 
 compile:
     exec    1
@@ -16,3 +15,7 @@ compile:
 install:
     exec    compile 1
     1       mv ./$name ~/.local/bin/$name
+
+stats:
+    exec    1
+    1       wc */*.{c,h} > wc.txt
