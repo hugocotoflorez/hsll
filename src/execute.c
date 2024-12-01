@@ -35,7 +35,6 @@ static int
 execute_raw(char **command, int *__stdin, int *__stdout)
 {
     int    exit_status  = -1;
-    char **temp_command = NULL;
 
     if (!(command && command[0]))
         return exit_status;
@@ -85,7 +84,6 @@ execute_raw(char **command, int *__stdin, int *__stdout)
             child = 0;
     }
 
-    free(temp_command);
     return exit_status;
 }
 

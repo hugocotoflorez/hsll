@@ -1,10 +1,10 @@
    41    78   696 src/builtin.c
   100   222  2243 src/cd.c
-   90   279  2254 src/completion.c
-  200   555  5000 src/execute.c
+  119   406  3044 src/completion.c
+  198   550  4944 src/execute.c
     6    12   101 src/hsll.c
   218   508  4182 src/hstring.c
-  121   216  2421 src/io.c
+  149   293  3138 src/io.c
   129   269  2511 src/shell.c
    25    53   495 test/test_bash.c
    23    57   474 vshcfp/function.c
@@ -12,11 +12,12 @@
   259   679  5706 vshcfp/parser.c
   151   378  3104 vshkh/buffer.c
   213   586  4453 vshkh/dynarray.c
-  186   546  4355 vshkh/keybinds.c
+  186   546  4357 vshkh/keybinds.c
   576  2443 16779 vshkh/keyboard.c
+  219   868  6007 vshkh/sudo_append.c
   140   383  2798 vshkh/utils.c
    36   169  1186 include/hcf_hashmap.h
    44   105   927 include/hsll.h
    40   195  1178 include/vshcfp.h
-  529  2109 16049 include/vshkh.h
- 3264 10194 79717 total
+  533  2127 16154 include/vshkh.h
+ 3542 11279 87282 total

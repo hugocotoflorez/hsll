@@ -4,7 +4,7 @@
 
 - redireccionamiento >, >>, <
 - bg &
-- multiple commands &&
+- multiple commands &&, ;
 - completion
 - which (dont expand alias)
 
@@ -15,6 +15,7 @@
 - Prompt (colors and path variables)
 - cd ('-' and strange stuff is not implemented)
 - Aliases
+- Up arrow restore prev command (history lenght of 1)
 
 ## How to access shell variables
 

@@ -199,6 +199,10 @@ static const char *DESC[] = {
 #ifndef VSHKH_H
 #define VSHKH_H
 
+/* hsll extension: add a string as if it was read
+ * from keyboard */
+void __kh_sudo_append(char *str);
+
 /***************************************************
  * ---| MISC                                  |--- *
  ***************************************************/

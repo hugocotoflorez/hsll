@@ -4,7 +4,7 @@
 #include <string.h>
 
 /* Just to print a message while creating a bind */
-#define VERBOSE
+//#define VERBOSE
 
 extern Array kb_array;
 
