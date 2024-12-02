@@ -8,7 +8,10 @@
 
 /* Pointer to the current input buffer */
 char *buffered_input;
-char  prev_command[LINELEN] = "";
+/* Where 0 is the previus command. The maximum is
+ * HIST_SIZE, but greater history_offset is the same
+ * as HIST_SIZE-1 */
+static unsigned int history_offset = 0;
 
 char *
 get_buffered_input()
@@ -17,15 +20,46 @@ get_buffered_input()
 }
 
 void
-insert_prev_command()
+insert_next_command()
 {
+    /* Place the new command */
+    --history_offset;
+    if (!hist_exists(history_offset))
+    {
+        ++history_offset;
+        return;
+    }
+
     /* Put the cursor just after the prompt */
     if (buffered_input[0])
         printf("\033[%zuD", strlen(buffered_input));
+    printf("\033[s"); // save position
+    printf("\033[J"); // clear screen (from cursor to bottom)
+    printf("\033[u"); // restore position
+    printf("%s", get_hist_entry(history_offset));
+    strcpy(buffered_input, get_hist_entry(history_offset));
+    fflush(stdout);
+}
 
+void
+insert_prev_command()
+{
     /* Place the new command */
-    printf("%s", prev_command);
-    strcpy(buffered_input, prev_command);
+    ++history_offset;
+    if (!hist_exists(history_offset))
+    {
+        --history_offset;
+        return;
+    }
+
+    /* Put the cursor just after the prompt */
+    if (buffered_input[0])
+        printf("\033[%zuD", strlen(buffered_input));
+    printf("\033[s"); // save position
+    printf("\033[J"); // clear screen (from cursor to bottom)
+    printf("\033[u"); // restore position
+    printf("%s", get_hist_entry(history_offset));
+    strcpy(buffered_input, get_hist_entry(history_offset));
     fflush(stdout);
 }
 
@@ -37,6 +71,7 @@ init_keyboard_handler()
     kh_bind_create("^Q", quit_handler);
     kh_bind_create("^I", tab_suggestions);
     kh_bind_create("#a", insert_prev_command);
+    kh_bind_create("#b", insert_next_command);
 }
 
 void
@@ -117,6 +152,9 @@ get_keyboard_input(char *line, size_t linelen)
             printf("\033[J"); // clear screen (from cursor to bottom)
             printf("\033[u"); // restore position
             putchar('\n');
+
+            /* Reset history_offset for next searches */
+            history_offset = 0;
             break;
         }
 
@@ -126,11 +164,11 @@ get_keyboard_input(char *line, size_t linelen)
     // line[strlen(line)] = 0;
 
 
-    /* If no command is introduced, dont store empty command */
+    /* If command is introduced, store command */
     if (line[0])
     {
         /* Store current command*/
-        strcpy(prev_command, line);
+        hist_append(line);
     }
 }
 

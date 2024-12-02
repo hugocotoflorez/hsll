@@ -15,7 +15,7 @@
 - Prompt (colors and path variables)
 - cd ('-' and strange stuff is not implemented)
 - Aliases
-- Up arrow restore prev command (history lenght of 1)
+- History nav! with up and down arrows
 
 ## How to access shell variables
 

@@ -34,6 +34,11 @@ char **__extend(char ***dest, char **src);
 char **__append(char ***argv, char *s);
 char **argv_dup(char **argv);
 
+/* history.c */
+#define HIST_SIZE 16
+char *get_hist_entry(int offset);
+void  hist_append(char *entry);
+int   hist_exists(int offset);
 /* cd.c */
 int cd(int argc, char **argv);
 int test_cd();
