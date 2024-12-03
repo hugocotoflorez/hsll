@@ -11,7 +11,6 @@ int
 hist_load(const char *filename)
 {
     int     fd;
-    off_t   offset;
     ssize_t n;
 
     /* Initialize hsit to zeros to avoid UB at reading
@@ -32,8 +31,6 @@ hist_load(const char *filename)
         perror("read");
         return 1;
     }
-
-    printf("N=%zd\n", n);
 
     /* I know there would be a constant way to calculate this but read
      * return LINELEN*HIST_SIZE if there is no HIST_SIZE entries so
