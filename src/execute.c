@@ -34,7 +34,7 @@ kill_child()
 static int
 execute_raw(char **command, int *__stdin, int *__stdout)
 {
-    int    exit_status  = -1;
+    int exit_status = -1;
 
     if (!(command && command[0]))
         return exit_status;
@@ -72,7 +72,7 @@ execute_raw(char **command, int *__stdin, int *__stdout)
                 exit(0);
 
             execvp(command[0], command);
-            perror("execv");
+            perror(command[0]);
             exit(-1);
 
         default:

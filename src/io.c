@@ -70,8 +70,8 @@ init_keyboard_handler()
     kh_bind_create("^C", kill_child);
     kh_bind_create("^Q", quit_handler);
     kh_bind_create("^I", tab_suggestions);
-    kh_bind_create("#a", insert_prev_command);
-    kh_bind_create("#b", insert_next_command);
+    kh_bind_create("#a", insert_prev_command); // arrow up
+    kh_bind_create("#b", insert_next_command); // arrow down
 }
 
 void

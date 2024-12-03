@@ -4,8 +4,8 @@
 #include <string.h>
 #include <unistd.h>
 
-char       hist[LINELEN][HIST_SIZE];
-static int entry_ptr = 0;
+static char hist[LINELEN][HIST_SIZE];
+static int  entry_ptr = 0;
 
 int
 hist_load(const char *filename)
