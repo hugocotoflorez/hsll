@@ -39,6 +39,9 @@ char **argv_dup(char **argv);
 char *get_hist_entry(int offset);
 void  hist_append(char *entry);
 int   hist_exists(int offset);
+int   hist_load(const char *filename);
+int   hist_save(const char *filename);
+
 /* cd.c */
 int cd(int argc, char **argv);
 int test_cd();

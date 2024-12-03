@@ -96,6 +96,7 @@ hsll_init()
         return -1;
 
     init_keyboard_handler();
+    hist_load(".hsll-hist");
 
     shell_opts = hcf_load(".hsllrc");
     aliases    = hcf_get_field(shell_opts, "aliases");
@@ -123,6 +124,7 @@ hsll_init()
 
     hcf_destroy(&shell_opts);
     destroy_keyboard_handler();
+    hist_save(".hsll-hist");
     printf("Destroying stuff\n");
 
     return 0;
