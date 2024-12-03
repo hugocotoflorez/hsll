@@ -16,6 +16,7 @@
 - cd ('-' and strange stuff is not implemented)
 - Aliases
 - History nav! with up and down arrows
+- Hisrory file to perserve hist between sessions
 
 ## How to access shell variables
 
