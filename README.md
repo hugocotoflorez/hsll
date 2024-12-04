@@ -17,6 +17,7 @@
 - Aliases
 - History nav! with up and down arrows
 - Hisrory file to perserve hist between sessions
+- History: reset (clear) input box on min offset
 
 ## How to access shell variables
 

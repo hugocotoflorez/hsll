@@ -24,11 +24,24 @@ insert_next_command()
 {
     /* Place the new command */
     --history_offset;
+    if (history_offset == 0)
+    {
+        if (buffered_input[0])
+            printf("\033[%zuD", strlen(buffered_input));
+        printf("\033[s"); // save position
+        printf("\033[J"); // clear screen (from cursor to bottom)
+        printf("\033[u"); // restore position
+        *buffered_input = 0;
+        fflush(stdout);
+        return;
+    }
+
     if (!hist_exists(history_offset))
     {
         ++history_offset;
         return;
     }
+
 
     /* Put the cursor just after the prompt */
     if (buffered_input[0])
@@ -123,13 +136,19 @@ manage_input(char *line, Keypress kp)
             case ' ':
                 putchar(kp.c);
                 if (kp.mods == NO_MOD || kp.mods == SHIFT_MOD)
+                {
                     line[(iptr)++] = kp.c;
+                    line[iptr]     = 0;
+                }
                 break;
 
             default:
                 printf("%s", REPR[(int) kp.c]);
                 if (kp.mods == NO_MOD || kp.mods == SHIFT_MOD)
+                {
                     line[(iptr)++] = kp.c;
+                    line[iptr]     = 0;
+                }
                 break;
         }
     }

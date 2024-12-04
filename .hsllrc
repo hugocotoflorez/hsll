@@ -1,5 +1,5 @@
 options:
-    prompt  "\e[0m\e[37m\e[1m┌─[\e[0m\e[1;32m${USER}\e[0m\e[1;34m@\e[0m\e[1;32m${HOST}\e[0m\e[37m]\e[0m - \e[37m[\e[0m\e[1;34m${PWD}\e[0m\e[0m\e[37m]\e[0m\n\e[0m\e[37m└──[\e[0m\e[1;34m>\e[0m\e[37m]\e[0m "
+    prompt  "\e[0m\e[37m\e[1m┌─[\e[0m\e[1;32m${USER}\e[0m\e[1;34m@\e[0m\e[1;32mhsll\e[0m\e[37m]\e[0m - \e[37m[\e[0m\e[1;34m${PWD}\e[0m\e[0m\e[37m]\e[0m\n\e[0m\e[37m└──[\e[0m\e[1;34m>\e[0m\e[37m]\e[0m "
 
 aliases:
     ls      eza --color=auto --icons=auto --sort=extension --group-directories-first
