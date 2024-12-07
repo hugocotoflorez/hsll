@@ -22,10 +22,26 @@ builtin_cd(char **command)
 }
 
 int
+builtin_alias(char **command)
+{
+    int len = 0;
+
+    while (command[len])
+        ++len;
+
+    if (len < 3)
+        return 1;
+
+    hcf_add(get_aliases(), command[1], __join(command + 2));
+
+    return 0;
+}
+
+int
 is_builtin_command(char **command)
 {
     /* Cd should not appear here as it executes in the parent */
-    return !strcmp(command[0], "exit") ;
+    return !strcmp(command[0], "exit") || !strcmp(command[0], "alias");
 }
 
 int
@@ -36,6 +52,9 @@ exec_builtin_command(char **command)
 
     if (!strcmp(command[0], "cd"))
         return builtin_cd(command);
+
+    if (!strcmp(command[0], "alias"))
+        return builtin_alias(command);
 
     return 0; // command exit status
 }

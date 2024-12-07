@@ -22,15 +22,17 @@ get_buffered_input()
 void
 insert_next_command()
 {
-    /* Place the new command */
+    if (history_offset == 0)
+        return;
+
+    /* Get the new command */
     --history_offset;
+
     if (history_offset == 0)
     {
         if (buffered_input[0])
             printf("\033[%zuD", strlen(buffered_input));
-        printf("\033[s"); // save position
         printf("\033[J"); // clear screen (from cursor to bottom)
-        printf("\033[u"); // restore position
         *buffered_input = 0;
         fflush(stdout);
         return;
@@ -46,9 +48,7 @@ insert_next_command()
     /* Put the cursor just after the prompt */
     if (buffered_input[0])
         printf("\033[%zuD", strlen(buffered_input));
-    printf("\033[s"); // save position
     printf("\033[J"); // clear screen (from cursor to bottom)
-    printf("\033[u"); // restore position
     printf("%s", get_hist_entry(history_offset));
     strcpy(buffered_input, get_hist_entry(history_offset));
     fflush(stdout);

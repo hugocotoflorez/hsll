@@ -48,6 +48,21 @@ __split(char *str)
     return arr;
 }
 
+char *
+__join(char **argv)
+{
+    char *str = strdup("");
+
+    for (char **s = argv; *s; ++s)
+    {
+        str = realloc(str, strlen(str) + strlen(*s) + 2);
+        strcat(str, *s);
+        strcat(str, " ");
+    }
+
+    return str;
+}
+
 char **
 argv_dup(char **argv)
 {

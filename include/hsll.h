@@ -1,6 +1,7 @@
 #ifndef HSLL_H
 #define HSLL_H
 
+#include "vshcfp.h"
 #include <stdio.h> // FILE*
 
 #define LINELEN 1023
@@ -12,11 +13,12 @@ void  destroy_keyboard_handler();
 char *get_buffered_input();
 
 /* shell.c */
-int   hsll_init();
-void  print_prompt();
-char *expand_alias(char *str);
-char *expand_variables(char *str);
-void  quit_handler();
+int       hsll_init();
+void      print_prompt();
+char     *expand_alias(char *str);
+char     *expand_variables(char *str);
+void      quit_handler();
+HcfField *get_aliases();
 
 /* execute.c */
 int   execute(char **command, int *__stdin, int *__stdout);
@@ -29,6 +31,7 @@ int exec_builtin_command(char **command);
 
 /* hstring.c */
 char  *path_variables_expansion(char *);
+char  *__join(char **argv);
 char **__split(char *);
 char **__extend(char ***dest, char **src);
 char **__append(char ***argv, char *s);

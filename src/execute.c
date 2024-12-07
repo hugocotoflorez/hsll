@@ -70,14 +70,16 @@ execute_raw(char **command, int *__stdin, int *__stdout)
             /* Exception: executed in parent */
             if (!strcmp(command[0], "cd"))
                 exit(0);
+            if (!strcmp(command[0], "alias"))
+                exit(0);
 
             execvp(command[0], command);
             perror(command[0]);
             exit(-1);
 
         default:
-            /* cd have to be executed in the parent */
-            if (!strcmp(command[0], "cd"))
+
+            if (!strcmp(command[0], "cd") || !strcmp(command[0], "alias"))
                 exec_builtin_command(command);
 
             wait(&exit_status);

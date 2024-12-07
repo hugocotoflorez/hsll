@@ -15,6 +15,12 @@ int       __quit = 0;
 char     *prompt = DEFAULT_PROMPT;
 HcfField *aliases;
 
+HcfField *
+get_aliases()
+{
+    return aliases;
+}
+
 char *
 expand_variables(char *str)
 {
@@ -70,9 +76,7 @@ expand_alias(char *str)
     else
     {
         if ((alias = hcf_get_value(*aliases, str)))
-        {
             strcpy(str, alias);
-        }
     }
     return str;
 }

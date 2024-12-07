@@ -7,6 +7,10 @@ default:
     name    hsll
     exec    compile stats
 
+optimize:
+    exec    1
+    1       $cc $src -O3 -o $name -I$inc
+
 compile:
     exec    1
     1       $cc $src $flags $dflags -o $name -I$inc

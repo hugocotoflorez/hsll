@@ -34,6 +34,9 @@ char *hcf_get_value(HcfField field, const char *key);
 /* Get a value given a field name and the options data structure */
 char *hcf_get(HcfOpts opts, const char *field, const char *key);
 
+/* Manually add a value */
+void hcf_add(HcfField *field, const char *key, char *value);
+
 /* destroy a yet created Options table */
 void hcf_destroy(HcfOpts *opts);
 
