@@ -22,6 +22,17 @@ get_aliases()
 }
 
 char *
+expand_home(char *str)
+{
+    char *home;
+    if (!(home = getenv("HOME")))
+        return str;
+
+    memmove(str, str + strlen(home), strlen(home) + strlen(str) + 1);
+    return memcpy(str, home, strlen(home));
+}
+
+char *
 expand_variables(char *str)
 {
     path_variables_expansion(str);
@@ -95,14 +106,17 @@ hsll_init()
     void   *s;
     void   *out = NULL;
 
+    char hist_file[LINELEN]    = "~/.hsll-hist";
+    char options_file[LINELEN] = "~/.hsllrc";
+
     /* Test that HOME and PWD are accessible */
     if (test_cd())
         return -1;
 
     init_keyboard_handler();
-    hist_load(".hsll-hist");
+    hist_load(expand_home(hist_file));
 
-    shell_opts = hcf_load(".hsllrc");
+    shell_opts = hcf_load(expand_home(options_file));
     aliases    = hcf_get_field(shell_opts, "aliases");
     prompt     = hcf_get(shell_opts, "options", "prompt") ?: prompt;
 
@@ -128,7 +142,7 @@ hsll_init()
 
     hcf_destroy(&shell_opts);
     destroy_keyboard_handler();
-    hist_save(".hsll-hist");
+    hist_save(expand_home(hist_file));
     printf("Destroying stuff\n");
 
     return 0;

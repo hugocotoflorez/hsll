@@ -29,7 +29,7 @@ void  kill_child();
 int is_builtin_command(char **command);
 int exec_builtin_command(char **command);
 
-/* hstring.c */
+/* ../src/hstring.c */
 char  *path_variables_expansion(char *);
 char  *__join(char **argv);
 char **__split(char *);

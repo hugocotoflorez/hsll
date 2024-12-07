@@ -58,20 +58,82 @@ cursor_goto_underline()
     printf("\033[J");      // erase from cursor
 }
 
+static char **
+remove_dup(char ***argv)
+{
+    char **temp;
+    int    len = 0;
+    int    eq;
+
+    temp         = argv_dup(*argv);
+    (*argv)[len] = NULL;
+
+    for (int i = 0; temp[i]; ++i)
+    {
+        eq = 0;
+        for (int j = 0; (*argv)[j]; ++j)
+        {
+            if (!strcmp(temp[i], (*argv)[j]))
+            {
+                eq = 1;
+                break;
+            }
+        }
+        if (!eq)
+        {
+            (*argv)[len++] = temp[i];
+            (*argv)[len]   = 0;
+        }
+    }
+
+    free(temp);
+    return *argv;
+}
 
 static char *
-suggest_command(char *suffix)
+shared_prefix(char **argv)
+{
+    char prefix[LINELEN];
+
+    /* argv length is 0 */
+    if (!argv || !argv[0])
+        return strdup("");
+
+    prefix[0] = 0;
+    strcpy(prefix, argv[0]);
+
+    for (char **arg = argv; *arg; ++arg)
+    {
+        for (int i = 0; i < (int) sizeof(prefix) && prefix[i]; ++i)
+        {
+            if ((*arg)[i] == prefix[i])
+                continue;
+
+            if (i == 0)
+                return strdup("");
+
+            prefix[i] = 0;
+            break;
+        }
+    }
+    printf("SHARED PREFIX: %s\n", prefix);
+
+    return strdup(prefix);
+}
+
+static char *
+suggest_command(char *prefix)
 {
     char pattern[LINELEN] = { 0 };
 
     strcat(pattern, "compgen -c ");
-    strcat(pattern, suffix);
+    strcat(pattern, prefix);
     return execute_get_output((char *[]) { "bash", "-c", pattern, NULL });
 }
 
 
 static char *
-suggest_option(char *suffix, char **in_list)
+suggest_option(char *prefix, char **in_list)
 {
     char pattern[LINELEN] = { 0 };
 
@@ -79,7 +141,7 @@ suggest_option(char *suffix, char **in_list)
     strcat(pattern, in_list[0]);
     strcat(pattern, " 2>/dev/null");
     strcat(pattern, " | grep -oE '^\\s+");
-    strcat(pattern, suffix);
+    strcat(pattern, prefix);
     strcat(pattern, "[a-zA-Z0-9-]+' -m " SUGGEST_CHR);
     return execute_get_output((char *[]) { "bash", "-c", pattern, NULL });
 }
@@ -136,10 +198,12 @@ tab_suggestions()
     char  *out           = NULL;
     char  *temp          = NULL;
     char  *directory_sep = NULL;
-    char  *suffix;
+    char  *prefix;
+    char  *sprefix;
     char  *last_sp;
     char  *nl;
     int    len;
+    int    is_file_completion = 0;
 
 
     /* Get the input as a list */
@@ -162,8 +226,8 @@ tab_suggestions()
         goto __exit__;
     }
 
-    /* Create the suffix */
-    suffix = in_list[len - 1];
+    /* Create the prefix */
+    prefix = in_list[len - 1];
 
     /* If the last space in the buffered string is just before the
      * end of line, newline or carriage return, it is a separator
@@ -173,17 +237,18 @@ tab_suggestions()
 
     /* Commands completion */
     if (len == 1 && (!last_sp || last_sp[1]))
-        out = suggest_command(suffix);
+        out = suggest_command(prefix);
 
     /* options completion */
     else if (in_list[len - 1][0] == '-')
-        out = suggest_option(suffix, in_list);
+        out = suggest_option(prefix, in_list);
 
     /* files and dirs completion (with match) */
     else if (!last_sp || last_sp[1])
     {
-        directory_sep = strrchr(in_list[len - 1], '/');
+        is_file_completion = 1;
 
+        directory_sep = strrchr(in_list[len - 1], '/');
         if (directory_sep)
         {
             *directory_sep = '\0';
@@ -195,7 +260,11 @@ tab_suggestions()
 
     /* files and dirs completion (without match) */
     else
+    {
+        is_file_completion = 1;
+
         out = suggest_file_nomatch();
+    }
 
     /* Change newlines to spaces */
     nl = out;
@@ -209,17 +278,24 @@ tab_suggestions()
     }
 
     out_list = __split(out);
+    remove_dup(&out_list);
 
     /* out_list length 1
-     * just one match, can autocomplete! */
+     * just one match, should autocomplete */
     if (out_list[1] == NULL)
     {
         for (int i = 0; i < SUGGEST_NUM && out_list[i]; i++)
             printf("%s ", out_list[i]);
         cursor_goto_prompt();
 
-        if (directory_sep)
+        if (is_file_completion)
         {
+            if (!directory_sep)
+                /* it is needed tp adjust this because if '/' is not in the
+                 * prefix there is no directory_sep so I adjust it manually
+                 * to the start o the prefix */
+                directory_sep = prefix - 1;
+
             strcat(get_buffered_input(), out_list[0] + strlen(directory_sep + 1));
             printf("%s", out_list[0] + strlen(directory_sep + 1));
 
@@ -236,17 +312,28 @@ tab_suggestions()
 
         else
         {
-            strcat(get_buffered_input(), out_list[0] + strlen(suffix));
-            printf("%s", out_list[0] + strlen(suffix));
+            strcat(get_buffered_input(), out_list[0] + strlen(prefix));
+            printf("%s", out_list[0] + strlen(prefix));
         }
     }
 
     else
     {
+        sprefix = shared_prefix(out_list);
+
         for (int i = 0; i < SUGGEST_NUM && out_list[i]; i++)
             printf("%s ", out_list[i]);
 
         cursor_goto_prompt();
+
+        /* prefix is "" or shared prefix among all suggestions */
+        if (strlen(sprefix) > strlen(prefix))
+        {
+            strcat(get_buffered_input(), sprefix + strlen(prefix));
+            printf("%s", sprefix + strlen(prefix));
+        }
+
+        free(sprefix);
     }
 
     free(out_list);

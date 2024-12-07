@@ -17,7 +17,7 @@ hist_load(const char *filename)
      * not-yet-written entries */
     memset(hist, 0, HIST_SIZE * LINELEN);
 
-    fd = open(filename, O_RDONLY);
+    fd = open(filename, O_RDONLY, 0666);
     if (fd < 0)
     {
         perror(filename);
@@ -52,7 +52,7 @@ hist_save(const char *filename)
     int fd;
     /* Problem: if there is hist-file entries in HIST, it appends it again
      * when appending to the hist-file */
-    fd = open(filename, O_WRONLY | O_TRUNC | O_CREAT, 0666);
+    fd = open(filename, O_RDWR | O_APPEND | O_CREAT, 0666);
     if (fd < 0)
     {
         perror(filename);

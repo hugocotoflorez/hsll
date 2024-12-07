@@ -59,7 +59,7 @@ insert_prev_command()
 {
     /* Place the new command */
     ++history_offset;
-    if (!hist_exists(history_offset))
+    if (history_offset == HIST_SIZE || !hist_exists(history_offset))
     {
         --history_offset;
         return;

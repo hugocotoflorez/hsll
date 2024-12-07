@@ -5,7 +5,7 @@
 - redireccionamiento >, >>, <
 - bg &
 - multiple commands &&, ;
-- completion
+- completion for alias and not unique command names
 - which (dont expand alias)
 
 ## Things that (may) work
@@ -16,8 +16,10 @@
 - cd ('-' and strange stuff is not implemented)
 - Aliases
 - History nav! with up and down arrows
-- Hisrory file to perserve hist between sessions
+- History: hist-file to perserve hist between sessions
 - History: reset (clear) input box on min offset
+- Completion: file, dir+file, command, command options
+- Completion: autocomplete on unique command and same prefix
 
 ## How to access shell variables
 
