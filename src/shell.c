@@ -128,8 +128,10 @@ hsll_init()
     free(out);
 
 
-    assert(signal(SIGTERM, quit_handler) != SIG_ERR);
-    assert(signal(SIGINT, kill_child) != SIG_ERR);
+    if (signal(SIGTERM, quit_handler) == SIG_ERR)
+        goto __quit__;
+    if (signal(SIGINT, kill_child) == SIG_ERR)
+        goto __quit__;
 
     while (!__quit)
     {
@@ -142,10 +144,10 @@ hsll_init()
         free(s);
     }
 
+__quit__:
     hcf_destroy(&shell_opts);
     destroy_keyboard_handler();
     hist_save(expand_home(hist_file));
-    printf("Destroying stuff\n");
 
     return 0;
 }

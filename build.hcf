@@ -1,5 +1,5 @@
 default:
-    cc      gcc
+cc      cc
     flags   -Wall -Wextra
     dflags  -fsanitize=null,address -g -O0
     src     src/*.c vshcfp/*.c vshkh/*.c
@@ -9,7 +9,7 @@ default:
 
 optimize:
     exec    1
-    1       $cc $src -O3 -o $name -I$inc
+    1       $cc $src -O3 -o $name -I$inc -static
 
 compile:
     exec    1
@@ -17,7 +17,7 @@ compile:
 
 
 install:
-    exec    optimize 1 2
+    exec    compile 1 2
     1       mv ./$name ~/.local/bin/$name
     2       chmod +x ~/.local/bin/$name
 
