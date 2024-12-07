@@ -12,6 +12,7 @@
 - History: reset (clear) input box on min offset
 - Completion: file, dir+file, command, command options
 - Completion: autocomplete on unique command and same prefix
+- Command concatenation: `&&`, `;`.
 
 ## How to access shell variables
 

@@ -34,10 +34,24 @@ kill_child()
 static int
 execute_raw(char **command, int *__stdin, int *__stdout)
 {
-    int exit_status = -1;
+    int exit_status = 0;
+    int async       = 0;
+    int len         = 0;
 
-    if (!(command && command[0]))
-        return exit_status;
+    if (!command || !command[0])
+        return 1;
+
+    /* Get the command length */
+    for (; command[len]; ++len)
+        ;
+
+    /* Check for & in the command. If it is the last argument
+     * set the async variable as true */
+    if (len > 2 && !strcmp(command[len - 1], "&"))
+    {
+        command[len - 1] = NULL;
+        async            = 1;
+    }
 
     switch (child = fork())
     {
@@ -52,20 +66,18 @@ execute_raw(char **command, int *__stdin, int *__stdout)
                 if (dup2(*__stdin, STDIN_FILENO) == -1)
                 {
                     perror("dup2 stdin");
-                    exit(-1);
+                    exit(1);
                 }
             }
 
             if (__stdout && dup2(*__stdout, STDOUT_FILENO) == -1)
             {
                 perror("dup2 stdout");
-                exit(-1);
+                exit(1);
             }
 
             if (is_builtin_command(command))
-            {
                 exit(exec_builtin_command(command));
-            }
 
             /* Exception: executed in parent */
             if (!strcmp(command[0], "cd"))
@@ -75,18 +87,49 @@ execute_raw(char **command, int *__stdin, int *__stdout)
 
             execvp(command[0], command);
             perror(command[0]);
-            exit(-1);
+            exit(1);
 
         default:
 
             if (!strcmp(command[0], "cd") || !strcmp(command[0], "alias"))
                 exec_builtin_command(command);
 
-            wait(&exit_status);
+            if (!async)
+                waitpid(child, &exit_status, 0);
+
             child = 0;
     }
 
     return exit_status;
+}
+
+static int
+execute_concat(char **command, int *__stdin, int *__stdout)
+{
+    char **to_exec  = command;
+    int    ret_code = 0;
+
+    for (int i = 0; command[i]; ++i)
+    {
+        if (!strcmp(command[i], "&&"))
+        {
+            command[i] = NULL;
+            ret_code   = execute_raw(to_exec, __stdin, __stdout);
+            to_exec    = command + i + 1;
+
+            if (ret_code != 0)
+                return ret_code;
+        }
+
+        else if (!strcmp(command[i], ";"))
+        {
+            command[i] = NULL;
+            ret_code   = execute_raw(to_exec, __stdin, __stdout);
+            to_exec    = command + i + 1;
+        }
+    }
+
+    return execute_raw(to_exec, __stdin, __stdout);
 }
 
 /* The string that is returned has the same size as strlen(output)
@@ -112,7 +155,6 @@ execute_get_output(char **command)
     lseek(temp_stdout, 0, SEEK_SET);
     read(temp_stdout, buf, MAXOUTLEN);
     buf[MAXOUTLEN] = 0;
-    // printf("Read %d chars!\n", (int) strlen(buf));
 
     return strdup(buf);
 }
@@ -126,7 +168,6 @@ execute(char **command, int *__stdin, int *__stdout)
     char **to_exec;
     int    i;
     int    ret_code = 0;
-    // char   buf[MAXOUTLEN + 1];
 
     int temp_stdin;
     int temp_stdout;
@@ -155,30 +196,19 @@ execute(char **command, int *__stdin, int *__stdout)
      * and pass the output to the second part of the command */
     for (i = 0; command[i]; ++i)
     {
-        // printf("COMMAND[%d]=%s\n", i, command[i]);
         if (!strcmp(command[i], "|"))
         {
             /* New stdout */
             temp_stdout = fileno(tmpfile());
-
-            command[i] = NULL;
-
-            ////////// PRINT
-            // read(temp_stdout, buf, MAXOUTLEN);
-            // buf[MAXOUTLEN] = 0;
-            // printf("BUFFERED STDIN:%s\n", buf);
-            // lseek(temp_stdin, 0, SEEK_SET);
-            ////////// PRINT CLOSE
-
-            ret_code = execute_raw(to_exec, &temp_stdin, &temp_stdout);
+            command[i]  = NULL;
+            ret_code = execute_concat(to_exec, &temp_stdin, &temp_stdout);
             to_exec  = command + i + 1;
 
             if (ret_code != 0)
             {
-                printf("Exit due to ret code %d\n", ret_code);
+                // printf("Exit due to ret code %d\n", ret_code);
                 return ret_code;
             }
-            // printf("TO_EXEC[0]=%s\n", to_exec[0]);
 
             /* stdout -> stdin */
             close(temp_stdin);
@@ -186,14 +216,7 @@ execute(char **command, int *__stdin, int *__stdout)
             lseek(temp_stdin, 0, SEEK_SET);
         }
     }
-    ////////// PRINT
-    // read(temp_stdout, buf, MAXOUTLEN);
-    // buf[MAXOUTLEN] = 0;
-    // printf("BUFFERED STDIN:%s\n", buf);
-    // lseek(temp_stdin, 0, SEEK_SET);
-    ////////// PRINT CLOSE
-
-    ret_code = execute_raw(to_exec, &temp_stdin, __stdout);
+    ret_code = execute_concat(to_exec, &temp_stdin, __stdout);
 
     close(temp_stdin);
     return ret_code;

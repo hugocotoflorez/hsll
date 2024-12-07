@@ -116,8 +116,6 @@ shared_prefix(char **argv)
             break;
         }
     }
-    printf("SHARED PREFIX: %s\n", prefix);
-
     return strdup(prefix);
 }
 
