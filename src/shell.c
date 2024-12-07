@@ -28,7 +28,10 @@ expand_home(char *str)
     if (!(home = getenv("HOME")))
         return str;
 
-    memmove(str, str + strlen(home), strlen(home) + strlen(str) + 1);
+    if (str[0] != '~')
+        return str;
+
+    memmove(str + strlen(home) - 1, str, strlen(home) + strlen(str));
     return memcpy(str, home, strlen(home));
 }
 
@@ -115,7 +118,6 @@ hsll_init()
 
     init_keyboard_handler();
     hist_load(expand_home(hist_file));
-
     shell_opts = hcf_load(expand_home(options_file));
     aliases    = hcf_get_field(shell_opts, "aliases");
     prompt     = hcf_get(shell_opts, "options", "prompt") ?: prompt;

@@ -17,8 +17,9 @@ compile:
 
 
 install:
-    exec    optimize 1
+    exec    optimize 1 2
     1       mv ./$name ~/.local/bin/$name
+    2       chmod +x ~/.local/bin/$name
 
 stats:
     exec    1
