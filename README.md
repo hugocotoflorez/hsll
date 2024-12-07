@@ -32,9 +32,11 @@ placing `export HOST` in the parent shell config.
 
 ## TODO
 
+> [!IMPORTANT]
+> If not compile using `-fsanitize` flag the
+> completion did not work properly.
+
 - redireccionamiento >, >>, <
-- bg &
-- multiple commands &&, ;
 - completion for alias
 - which (dont expand alias)
 
