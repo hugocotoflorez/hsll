@@ -4,14 +4,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef VERBOSE
+#define VERBOSE 0
+#endif
+
 /* Return an null terminated array with the same content
  * as str, splitted by spaces */
 char **
-__split(char *str)
+argv_split(char *str)
 {
     char  *c;
     int    size = 0;
     char **arr  = NULL;
+
+    if (VERBOSE)
+        printf("SPLIT INPUT: %s\n", str);
+
+    if (str == NULL)
+        /* str should never be null */
+        return NULL;
 
     str[strcspn(str, "\n\0\r")] = '\0';
 
@@ -24,7 +35,12 @@ __split(char *str)
             continue;
         }
 
-        arr       = realloc(arr, sizeof(char *) * (size + 1));
+        arr = realloc(arr, sizeof(char *) * (size + 1));
+        if (!arr)
+        {
+            perror("split.realloc");
+            exit(1);
+        }
         arr[size] = str;
         *c        = '\0';
         str       = c + 1;
@@ -39,17 +55,25 @@ __split(char *str)
         exit(1);
     }
 
-    if (*str)
+    arr[size++] = str;
+    arr[size]   = NULL;
+
+    if (VERBOSE)
     {
-        arr[size++] = str;
+        printf("SPLIT OUTPUT: ");
+        int i = 0;
+        do
+        {
+            printf("%s ", arr[i]);
+        } while (arr[i++]);
+        printf("\n");
     }
-    arr[size] = NULL;
 
     return arr;
 }
 
 char *
-__join(char **argv)
+argv_join(char **argv)
 {
     char *str = strdup("");
 
@@ -79,7 +103,7 @@ argv_dup(char **argv)
 }
 
 char **
-__append(char ***argv, char *s)
+argv_append(char ***argv, char *s)
 {
     int len;
 
@@ -100,7 +124,7 @@ __append(char ***argv, char *s)
 
 /* Append src to dest and free src */
 char **
-__extend(char ***dest, char **src)
+argv_extend(char ***dest, char **src)
 {
     int len_src;
     int len_dest;

@@ -38,8 +38,7 @@ expand_home(char *str)
 char *
 expand_variables(char *str)
 {
-    path_variables_expansion(str);
-    return str;
+    return path_variables_expansion(str);
 }
 
 void
@@ -140,7 +139,7 @@ hsll_init()
         get_input_line(line, LINELEN, NULL);
         expand_alias(line);
         expand_variables(line);
-        execute(s = __split(line), NULL, NULL);
+        execute(s = argv_split(line), NULL, NULL);
         free(s);
     }
 

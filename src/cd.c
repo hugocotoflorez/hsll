@@ -42,7 +42,7 @@ cd(int argc, char **argv)
             if (*argv[1] != '/')
             {
                 /* Using getcwd expand links */
-                strncpy(dir, getenv("PWD"), PATH_MAX);
+                strncpy(dir, getenv("PWD"), PATH_MAX-1);
 
                 /* If it is ., dont do nothing */
                 if (!strcmp(argv[1], "."))

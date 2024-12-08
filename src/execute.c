@@ -50,7 +50,11 @@ execute_raw(char **command, int *__stdin, int *__stdout)
     if (len > 2 && !strcmp(command[len - 1], "&"))
     {
         command[len - 1] = NULL;
-        async            = 1;
+        printf("Async: ");
+        for (int i = 0; command[i]; ++i)
+            printf("%s ", command[i]);
+        puts("");
+        async = 1;
     }
 
     switch (child = fork())
@@ -139,6 +143,7 @@ execute_get_output(char **command)
 {
     int  temp_stdout;
     char buf[MAXOUTLEN + 1]; // output buffer
+    memset(buf, 0, MAXOUTLEN + 1);
 
     /* Open a temp file */
     temp_stdout = fileno(tmpfile());

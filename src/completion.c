@@ -6,6 +6,10 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#ifndef VERBOSE
+#define VERBOSE 0
+#endif
+
 /* Number of suggestions displayed */
 #define SUGGEST_CHR "5"
 #define SUGGEST_NUM 5
@@ -20,6 +24,7 @@ get_cursor_position(int *row, int *col)
     char response[16] = { 0 };
 
     write(STDOUT_FILENO, "\033[6n", 4);
+    fflush(stdout);
     read(STDIN_FILENO, response, sizeof(response) - 1);
 
     return sscanf(response, "\033[%d;%dR", row, col) - 2;
@@ -31,20 +36,21 @@ cursor_goto_prompt()
     struct winsize ws;
     int            r, c;
 
-    /* Get term size and cursor position
-     * if cursor position == term rows -1
-     * it should move 1 up */
+    printf("\033[u");    // restore saved position
+    printf("\033[?25h"); // show cursor
+    fflush(stdout);
+
+    // printf("\033[?1004h"); // enable reporting focus
+
+    /* Get term size and cursor position */
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
     get_cursor_position(&r, &c);
 
-    printf("\033[u");    // restore saved position
-    printf("\033[?25h"); // show cursor
-    // printf("\033[?1004h"); // enable reporting focus
-
+    /* It is supposed that completion cant scroll
+     * more than 0 or 1 lines */
+    int SCROLL = 1;
     if (r == ws.ws_row)
-        /* It is supposed that completion cant scroll
-         * more than 0 or 1 lines */
-        printf("\033[A"); // move up
+        printf("\033[%d;%dH", ws.ws_row - SCROLL, c); // move up
 }
 
 
@@ -102,8 +108,12 @@ shared_prefix(char **argv)
     prefix[0] = 0;
     strcpy(prefix, argv[0]);
 
-    for (char **arg = argv; *arg; ++arg)
+    for (char **arg = argv; *arg != NULL; ++arg)
     {
+        /* There is some \0 entries sometimes that I want to ignore */
+        if (!**arg)
+            continue;
+
         for (int i = 0; i < (int) sizeof(prefix) && prefix[i]; ++i)
         {
             if ((*arg)[i] == prefix[i])
@@ -122,8 +132,8 @@ shared_prefix(char **argv)
 static char *
 suggest_command(char *prefix)
 {
-    char pattern[LINELEN] = { 0 };
-
+    char pattern[LINELEN];
+    pattern[0] = 0;
     strcat(pattern, "compgen -c ");
     strcat(pattern, prefix);
     return execute_get_output((char *[]) { "bash", "-c", pattern, NULL });
@@ -133,8 +143,8 @@ suggest_command(char *prefix)
 static char *
 suggest_option(char *prefix, char **in_list)
 {
-    char pattern[LINELEN] = { 0 };
-
+    char pattern[LINELEN];
+    pattern[0] = 0;
     strcat(pattern, "man ");
     strcat(pattern, in_list[0]);
     strcat(pattern, " 2>/dev/null");
@@ -153,7 +163,8 @@ suggest_file_nomatch()
 static char *
 suggest_dir_file(char *dir, char *match)
 {
-    char pattern[LINELEN] = { 0 };
+    char pattern[LINELEN];
+    pattern[0] = 0;
     strcat(pattern, "ls ");
     strcat(pattern, dir);
     strcat(pattern, " -A 2>/dev/null | grep -oE '^");
@@ -168,7 +179,8 @@ suggest_dir_file(char *dir, char *match)
 static char *
 suggest_file(char *match)
 {
-    char pattern[LINELEN] = { 0 };
+    char pattern[LINELEN];
+    pattern[0] = 0;
     strcat(pattern, "ls -A 2>/dev/null | grep -oE '^");
     strcat(pattern, match);
     strcat(pattern, "[a-zA-Z0-9./-]+' -m " SUGGEST_CHR);
@@ -202,11 +214,11 @@ tab_suggestions()
     char  *nl;
     int    len;
     int    is_file_completion = 0;
-
+    int    out_list_len       = 0;
 
     /* Get the input as a list */
     temp    = strdup(get_buffered_input());
-    in_list = __split(temp);
+    in_list = argv_split(temp);
 
     /* Get S length */
     for (len = 0; in_list[len]; len++)
@@ -221,33 +233,33 @@ tab_suggestions()
     if (len == 0)
     {
         cursor_goto_prompt();
-        goto __exit__;
+        free(in_list);
+        free(temp);
+        fflush(stdout);
+        return;
     }
 
     /* Create the prefix */
     prefix = in_list[len - 1];
 
-    /* If the last space in the buffered string is just before the
-     * end of line, newline or carriage return, it is a separator
-     * so len would be threated as len+1
-     * The way used to check for this is (!last_sp || last_sp[1])*/
-    last_sp = strrchr(get_buffered_input(), ' ');
+    /* The position of the char just before the \0.
+     * It have to be a space to change suggestion behaviour */
+    last_sp = strchr(get_buffered_input(), 0) - 1;
 
     /* Commands completion */
-    if (len == 1 && (!last_sp || last_sp[1]))
+    if (len == 1 && *last_sp != ' ')
         out = suggest_command(prefix);
 
     /* options completion */
-    else if (in_list[len - 1][0] == '-')
+    else if (prefix[0] == '-')
         out = suggest_option(prefix, in_list);
 
     /* files and dirs completion (with match) */
-    else if (!last_sp || last_sp[1])
+    else if (*last_sp != ' ')
     {
         is_file_completion = 1;
 
-        directory_sep = strrchr(in_list[len - 1], '/');
-        if (directory_sep)
+        if ((directory_sep = strrchr(in_list[len - 1], '/')) != NULL)
         {
             *directory_sep = '\0';
             out = suggest_dir_file(in_list[len - 1], directory_sep + 1);
@@ -260,8 +272,7 @@ tab_suggestions()
     else
     {
         is_file_completion = 1;
-
-        out = suggest_file_nomatch();
+        out                = suggest_file_nomatch();
     }
 
     /* Change newlines to spaces */
@@ -272,18 +283,20 @@ tab_suggestions()
     if (strlen(out) == 0)
     {
         cursor_goto_prompt();
-        goto __exit__;
+        free(in_list);
+        free(temp);
+        free(out);
+        fflush(stdout);
+        return;
     }
 
-    out_list = __split(out);
+    out_list = argv_split(out);
     remove_dup(&out_list);
 
     /* out_list length 1
      * just one match, should autocomplete */
     if (out_list[1] == NULL)
     {
-        for (int i = 0; i < SUGGEST_NUM && out_list[i]; i++)
-            printf("%s ", out_list[i]);
         cursor_goto_prompt();
 
         if (is_file_completion)
@@ -319,13 +332,23 @@ tab_suggestions()
     {
         sprefix = shared_prefix(out_list);
 
-        for (int i = 0; i < SUGGEST_NUM && out_list[i]; i++)
+        if (VERBOSE)
+            printf("SHARED PREFIX: %s\n", sprefix);
+
+        for (int i = 0; out_list[i] && (i < SUGGEST_NUM); i++)
             printf("%s ", out_list[i]);
+
+        out_list_len = 0;
+        while (out_list[out_list_len])
+            ++out_list_len;
+
+        if (out_list_len > SUGGEST_NUM)
+            printf("[%d more]", out_list_len - SUGGEST_NUM);
 
         cursor_goto_prompt();
 
-        /* prefix is "" or shared prefix among all suggestions */
         if (strlen(sprefix) > strlen(prefix))
+        /* prefix is shared among all suggestions */
         {
             strcat(get_buffered_input(), sprefix + strlen(prefix));
             printf("%s", sprefix + strlen(prefix));
@@ -335,11 +358,8 @@ tab_suggestions()
     }
 
     free(out_list);
-
-
-__exit__:
-    fflush(stdout);
     free(in_list);
     free(temp);
     free(out);
+    fflush(stdout);
 }

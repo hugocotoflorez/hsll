@@ -1,4 +1,5 @@
 default:
+
 cc      cc
     flags   -Wall -Wextra
     dflags  -fsanitize=null,address -g -O0

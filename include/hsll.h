@@ -6,7 +6,7 @@
 
 #define LINELEN 1023
 
-/* io.c */
+/* ../src/io.c */
 void  get_input_line(char *, int, FILE *);
 void  init_keyboard_handler();
 void  destroy_keyboard_handler();
@@ -20,7 +20,7 @@ char     *expand_variables(char *str);
 void      quit_handler();
 HcfField *get_aliases();
 
-/* execute.c */
+/* ../src/execute.c */
 int   execute(char **command, int *__stdin, int *__stdout);
 char *execute_get_output(char **command);
 void  kill_child();
@@ -31,10 +31,10 @@ int exec_builtin_command(char **command);
 
 /* ../src/hstring.c */
 char  *path_variables_expansion(char *);
-char  *__join(char **argv);
-char **__split(char *);
-char **__extend(char ***dest, char **src);
-char **__append(char ***argv, char *s);
+char  *argv_join(char **argv);
+char **argv_split(char *);
+char **argv_extend(char ***dest, char **src);
+char **argv_append(char ***argv, char *s);
 char **argv_dup(char **argv);
 
 /* ../src/history.c */

@@ -32,7 +32,7 @@ builtin_alias(char **command)
     if (len < 3)
         return 1;
 
-    hcf_add(get_aliases(), command[1], __join(command + 2));
+    hcf_add(get_aliases(), command[1], argv_join(command + 2));
 
     return 0;
 }

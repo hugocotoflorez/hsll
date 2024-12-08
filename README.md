@@ -32,6 +32,7 @@ placing `export HOST` in the parent shell config.
 
 ## TODO
 
+- I break last line -1 tab go one more up that it should
 - redireccionamiento >, >>, <
 - bg &
 - multiple commands &&, ;

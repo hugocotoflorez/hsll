@@ -1,13 +1,12 @@
-   60   110  1015 src/builtin.c
-  100   222  2243 src/cd.c
-  345  1121  8826 src/completion.c
-  223   627  5412 src/execute.c
+   60   110  1018 src/builtin.c
+  100   222  2245 src/cd.c
+  361  1110  9100 src/completion.c
+  228   645  5561 src/execute.c
    96   292  2016 src/history.c
     6    12   101 src/hsll.c
-  233   542  4416 src/hstring.c
+  257   589  4863 src/hstring.c
   206   439  4693 src/io.c
-  153   322  3008 src/shell.c
-   36    78   743 test/test_bash.c
+  152   321  3002 src/shell.c
    30    71   589 vshcfp/function.c
   137   352  2805 vshcfp/hashtable.c
   259   679  5706 vshcfp/parser.c
@@ -18,7 +17,7 @@
   219   868  6007 vshkh/sudo_append.c
   140   383  2798 vshkh/utils.c
    36   169  1186 include/hcf_hashmap.h
-   55   135  1247 include/hsll.h
+   55   135  1273 include/hsll.h
    43   209  1267 include/vshcfp.h
   533  2127 16154 include/vshkh.h
- 4036 12711 98925 total
+ 4044 12686 99077 total
