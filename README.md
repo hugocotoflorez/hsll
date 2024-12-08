@@ -12,7 +12,8 @@
 - History: reset (clear) input box on min offset
 - Completion: file, dir+file, command, command options
 - Completion: autocomplete on unique command and same prefix
-- Command concatenation: `&&`, `;`.
+- Background commands using `&`
+- Command concatenation: `&&`, `;`
 
 ## How to access shell variables
 
@@ -32,10 +33,7 @@ placing `export HOST` in the parent shell config.
 
 ## TODO
 
-- I break last line -1 tab go one more up that it should
 - redireccionamiento >, >>, <
-- bg &
-- multiple commands &&, ;
 - completion for alias
 - which (dont expand alias)
 
