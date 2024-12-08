@@ -6,10 +6,6 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#ifndef VERBOSE
-#define VERBOSE 0
-#endif
-
 /* Number of suggestions displayed */
 #define SUGGEST_CHR "5"
 #define SUGGEST_NUM 5
@@ -150,7 +146,7 @@ suggest_option(char *prefix, char **in_list)
     strcat(pattern, " 2>/dev/null");
     strcat(pattern, " | grep -oE '^\\s+");
     strcat(pattern, prefix);
-    strcat(pattern, "[a-zA-Z0-9-]+' -m " SUGGEST_CHR);
+    strcat(pattern, "[a-zA-Z0-9-]+'");
     return execute_get_output((char *[]) { "bash", "-c", pattern, NULL });
 }
 
@@ -172,7 +168,7 @@ suggest_dir_file(char *dir, char *match)
      * from pattern solve this issue */
     if (*match)
         strcat(pattern, match);
-    strcat(pattern, "[a-zA-Z0-9./-]+' -m " SUGGEST_CHR);
+    strcat(pattern, "[a-zA-Z0-9./-]+'");
     return execute_get_output((char *[]) { "bash", "-c", pattern, NULL });
 }
 
@@ -183,7 +179,7 @@ suggest_file(char *match)
     pattern[0] = 0;
     strcat(pattern, "ls -A 2>/dev/null | grep -oE '^");
     strcat(pattern, match);
-    strcat(pattern, "[a-zA-Z0-9./-]+' -m " SUGGEST_CHR);
+    strcat(pattern, "[a-zA-Z0-9./-]+'");
     return execute_get_output((char *[]) { "bash", "-c", pattern, NULL });
 }
 
@@ -221,8 +217,9 @@ tab_suggestions()
     in_list = argv_split(temp);
 
     /* Get S length */
-    for (len = 0; in_list[len]; len++)
-        ;
+    len = 0;
+    while (in_list[len])
+        ++len;
 
     /* Place the cursor in the next line */
     cursor_goto_underline();
@@ -230,7 +227,7 @@ tab_suggestions()
     /* Tab with nothing written
      * calling cursor_goto_underline clear that line
      * so this is called after that to clear the line */
-    if (len == 0)
+    if (len == 0) // || (len == 1 && *in_list[0] == 0))
     {
         cursor_goto_prompt();
         free(in_list);
@@ -295,7 +292,7 @@ tab_suggestions()
 
     /* out_list length 1
      * just one match, should autocomplete */
-    if (out_list[1] == NULL)
+    if (out_list[1] == NULL) //|| (out_list[2] == NULL && *out_list[1] == 0))
     {
         cursor_goto_prompt();
 
@@ -319,21 +316,24 @@ tab_suggestions()
                 strcat(get_buffered_input(), "/");
                 putchar('/');
             }
+            else
+            {
+                strcat(get_buffered_input(), " ");
+                putchar(' ');
+            }
         }
 
         else
         {
             strcat(get_buffered_input(), out_list[0] + strlen(prefix));
-            printf("%s", out_list[0] + strlen(prefix));
+            strcat(get_buffered_input(), " ");
+            printf("%s ", out_list[0] + strlen(prefix));
         }
     }
 
     else
     {
         sprefix = shared_prefix(out_list);
-
-        if (VERBOSE)
-            printf("SHARED PREFIX: %s\n", sprefix);
 
         for (int i = 0; out_list[i] && (i < SUGGEST_NUM); i++)
             printf("%s ", out_list[i]);
@@ -347,12 +347,20 @@ tab_suggestions()
 
         cursor_goto_prompt();
 
-        if (strlen(sprefix) > strlen(prefix))
+        if (directory_sep && strlen(sprefix) > strlen(directory_sep + 1))
+        /* prefix is shared among all suggestions (dir + file mode) */
+        {
+            strcat(get_buffered_input(), sprefix + strlen(directory_sep + 1));
+            printf("%s", sprefix + strlen(directory_sep + 1));
+        }
+
+        else if (!directory_sep && strlen(sprefix) > strlen(prefix))
         /* prefix is shared among all suggestions */
         {
             strcat(get_buffered_input(), sprefix + strlen(prefix));
             printf("%s", sprefix + strlen(prefix));
         }
+
 
         free(sprefix);
     }

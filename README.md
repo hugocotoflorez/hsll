@@ -15,12 +15,6 @@
 - Background commands using `&`
 - Command concatenation: `&&`, `;`
 
-## How to access shell variables
-
-At least in my machine env variables such as HOST
-are not accessible from hsll. I can fix it by
-placing `export HOST` in the parent shell config.
-
 ## Compiling and installing
 
 - Requisites: [hbuild](https://github.com/hugocotoflorez/hbuild)
@@ -31,9 +25,16 @@ placing `export HOST` in the parent shell config.
 > [!NOTE]
 > `~/.local/bin/` have to be on PATH
 
+## How to access shell variables
+
+At least in my machine env variables such as HOST
+are not accessible from hsll. I can fix it by
+placing `export HOST` in the parent shell config.
+
 ## TODO
 
 - redireccionamiento >, >>, <
 - completion for alias
 - which (dont expand alias)
+- left and right arrows
 

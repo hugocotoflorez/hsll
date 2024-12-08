@@ -4,10 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef VERBOSE
-#define VERBOSE 0
-#endif
-
 /* Return an null terminated array with the same content
  * as str, splitted by spaces */
 char **
@@ -16,9 +12,6 @@ argv_split(char *str)
     char  *c;
     int    size = 0;
     char **arr  = NULL;
-
-    if (VERBOSE)
-        printf("SPLIT INPUT: %s\n", str);
 
     if (str == NULL)
         /* str should never be null */
@@ -48,26 +41,15 @@ argv_split(char *str)
     }
 
     arr = realloc(arr, sizeof(char *) * (size + 2));
-
     if (!arr)
     {
         perror("split.realloc");
         exit(1);
     }
 
-    arr[size++] = str;
-    arr[size]   = NULL;
-
-    if (VERBOSE)
-    {
-        printf("SPLIT OUTPUT: ");
-        int i = 0;
-        do
-        {
-            printf("%s ", arr[i]);
-        } while (arr[i++]);
-        printf("\n");
-    }
+    if (*str)
+        arr[size++] = str;
+    arr[size] = NULL;
 
     return arr;
 }
@@ -135,22 +117,14 @@ argv_extend(char ***dest, char **src)
         return *dest;
     }
 
-    // printf("DEST: ");
     for (len_dest = 0; (*dest)[len_dest]; ++len_dest)
         ;
-    // printf("%s ", (*dest)[len_dest]);
-    // puts("");
 
-    // printf("SRC: ");
     for (len_src = 0; src[len_src]; ++len_src)
         ;
-    // printf("%s ", src[len_src]);
-    // puts("");
-
 
     if (len_src == 0)
     {
-        // printf("SRC len=0\n");
         free(src);
         return *dest;
     }
@@ -163,15 +137,7 @@ argv_extend(char ***dest, char **src)
         exit(1);
     }
 
-    // printf("WITHOUT free DEST\n");
-    // memmove(*dest, *dest, sizeof(char *) * len_dest); // as not using realloc for this
-
     memmove((*dest) + len_dest, src, sizeof(char *) * (len_src + 1));
-
-    // printf("FINAL: ");
-    // for (int i = 0; (*dest)[i]; ++i)
-    // printf("%s ", (*dest)[i]);
-    // puts("");
 
     free(src);
     return *dest;
@@ -187,7 +153,7 @@ path_variables_expansion(char *str)
     char  need_pad;
 
     if (!str)
-        return "";
+        return NULL;
 
     while ((c = strchr(str, '$')))
     {
@@ -221,36 +187,23 @@ path_variables_expansion(char *str)
                 }
         }
 
-        // printf("CLOSE CHR: '%c'\n", *close);
-
         if (!close)
             close = strchr(str, 0);
 
         *close = 0;
-        // printf("ENV (%s)", env);
-        env = getenv(env);
 
-
-        if (!env)
+        if (!(env = getenv(env)))
             env = "?";
 
-        // printf(": %s\n", env);
-        //  printf("C: %s\n", c);
-        // printf("CLOSE+1: %s\n", close + 1);
-
-        if (env)
+        else
+        {
             memmove(c + strlen(env ?: "") + (need_pad ? 1 : 0), close + 1,
                     strlen(close + 1) + 1);
-
-        // printf("AFTER MEMMOVE: %s\n", str);
-
-        if (env)
             memmove(c, env, strlen(env ?: ""));
+        }
 
         if (need_pad)
             c[strlen(env ?: "")] = need_pad;
-
-        // printf("STR: %s\n", str);
     }
 
     return str;

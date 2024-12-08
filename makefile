@@ -14,3 +14,6 @@ $(OUT): $(OBJ)
 clean:
 	rm $(OBJ)
 
+install: $(OUT)
+	mv $(OUT) ~/.local/bin/$(OUT)
+	chmod +x ~/.local/bin/$(OUT)
