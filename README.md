@@ -17,10 +17,17 @@
 
 ## Compiling and installing
 
+### Using hbuild
+
 - Requisites: [hbuild](https://github.com/hugocotoflorez/hbuild)
 
 - For installing globaly: `hbuild install`.
 - for compile locally: `hbuild compile`
+
+### Using make
+
+- For installing globaly: `make install`.
+- for compile locally: `make`
 
 > [!NOTE]
 > `~/.local/bin/` have to be on PATH
