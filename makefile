@@ -8,7 +8,7 @@ OBJ = $(SRC:.c=.o)
 $(OUT): $(OBJ)
 	$(CC) $(OBJ) $(INC) -o $(OUT)
 
-%.c: %.c $(LIB)
+%.o: %.c $(LIB)
 	$(CC) -c $< $(INC) -o $@
 
 clean:
