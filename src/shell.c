@@ -139,7 +139,7 @@ hsll_init()
                 get_input_line(line, LINELEN, NULL);
                 expand_alias(line);
                 expand_variables(line);
-                execute(s = argv_split(line), NULL, NULL);
+                execute(s = argv_split_allowing_quotes(line), NULL, NULL);
                 free(s);
         }
 

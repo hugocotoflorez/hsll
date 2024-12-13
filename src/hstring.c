@@ -4,6 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* for debugging */
+void
+argv_print(char **argv)
+{
+        printf("ARGV: ");
+        for (char **arg = argv; *arg; ++arg)
+                printf("%s, ", *arg);
+        printf("\n");
+}
+
 /* Return an null terminated array with the same content
  * as str, splitted by spaces */
 char **
@@ -52,6 +62,88 @@ argv_split(char *str)
         arr[size] = NULL;
 
         return arr;
+}
+
+/* Get the next quote that is not escaped. If str[0] is '"' it
+ * returns &str[0]. I there is no '"' until '\0' it returns
+ * str + sizeof(str) that is the position of the last '\0'. */
+static char *
+get_next_quote(char *str)
+{
+        // printf("Getting next quote from (%s)\n", str);
+        char *c = strchr(str, '"');
+
+        /* There is no '"' */
+        if (!c)
+        {
+                // printf("There is no quote\n");
+                return strchr(str, 0);
+        }
+
+        /* If the first char is an '"' it can not be escaped */
+        if (c == str)
+        {
+                // printf("Quote at start\n");
+                return str;
+        }
+
+        do
+        {
+                /* If it is not escaped return their position */
+                if (c[-1] != '\\')
+                {
+                        // printf("Quote at offset %d\n", (int) (c - str));
+                        return c;
+                }
+
+        } while ((c = strchr(c, '"')));
+
+        /* Escape the loop if there is no '"' and return the '\0' positon */
+        // printf("There is no quote\n");
+        return strchr(str, 0);
+}
+
+char **
+argv_split_allowing_quotes(char *str)
+{
+        char *c;
+        char **argv;
+
+        /* Get the position of the first quote or \0 */
+
+        /* If C points yet to the last null char returns a simple split */
+        if (*(c = get_next_quote(str)) == '\0')
+                return argv_split(str);
+
+        *c = 0;
+
+        /* Split all until the first quote */
+        argv = argv_split(str);
+
+        str = c + 1;
+
+        /* Search for the second quote. If there is no one,
+         * return the current argv. This is an error in command
+         * syntaxis. */
+        c = get_next_quote(str);
+        if (!*c)
+        {
+                fprintf(stderr, "Syntaxis error: no matching '\"'\n");
+                return argv;
+        }
+
+        *c = 0;
+
+        /* Append the quoted string to the argv list as a single arg */
+        argv_extend(&argv, argv_dup((char *[]) { str, NULL }));
+
+        /* Parse (using this function recursively) and append the
+         * remaining command to the argv list. If C is the last '"', C+1
+         * would point to a \0 so this function would split("") that
+         * returns NULL and is handled correctly by default */
+        argv = argv_extend(&argv, argv_split_allowing_quotes(c + 1));
+
+        return argv;
 }
 
 char *
@@ -113,7 +205,7 @@ argv_extend(char ***dest, char **src)
 
         if (!*dest || !src)
         {
-                printf("NULL dest or src\n");
+                ////printf("NULL dest or src\n");
                 return *dest;
         }
 

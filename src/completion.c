@@ -214,7 +214,7 @@ tab_suggestions()
 
         /* Get the input as a list */
         temp = strdup(get_buffered_input());
-        in_list = argv_split(temp);
+        in_list = argv_split_allowing_quotes(temp);
 
         /* Get S length */
         len = 0;
@@ -287,7 +287,7 @@ tab_suggestions()
                 return;
         }
 
-        out_list = argv_split(out);
+        out_list = argv_split_allowing_quotes(out);
         remove_dup(&out_list);
 
         /* out_list length 1
