@@ -9,10 +9,10 @@
 Arrowkey
 kh_is_arrow(Keypress kp)
 {
-    if (kp.mods & IS_ARROW)
-        return kp.c;
+        if (kp.mods & IS_ARROW)
+                return kp.c;
 
-    return NO_ARROW;
+        return NO_ARROW;
 }
 
 /* Following functions return >0 if keypress has
@@ -20,31 +20,31 @@ kh_is_arrow(Keypress kp)
 inline int
 kh_has_ctrl(Keypress kp)
 {
-    return kp.mods & CTRL_MOD;
+        return kp.mods & CTRL_MOD;
 }
 
 inline int
 kh_has_shift(Keypress kp)
 {
-    return kp.mods & SHIFT_MOD;
+        return kp.mods & SHIFT_MOD;
 }
 
 inline int
 kh_has_alt(Keypress kp)
 {
-    return kp.mods & ALT_MOD;
+        return kp.mods & ALT_MOD;
 }
 
 inline int
 kh_has_supr(Keypress kp)
 {
-    return kp.mods & SUPR_MOD;
+        return kp.mods & SUPR_MOD;
 }
 
 inline int
 kp_is_equal(Keypress kp1, Keypress kp2)
 {
-    return kp1.c == kp2.c && kp1.mods == kp2.mods;
+        return kp1.c == kp2.c && kp1.mods == kp2.mods;
 }
 
 /* Check if keypresses of both keybinds are the same,
@@ -52,26 +52,26 @@ kp_is_equal(Keypress kp1, Keypress kp2)
 int
 kb_is_equal(Keybind kb1, Keybind kb2)
 {
-    for (int i = 0; i < KEYBINDLEN; i++)
-    {
-        if (!kp_is_equal(kb1.kp[i], kb2.kp[i]))
-            return 0;
-    }
-    return 1;
+        for (int i = 0; i < KEYBINDLEN; i++)
+        {
+                if (!kp_is_equal(kb1.kp[i], kb2.kp[i]))
+                        return 0;
+        }
+        return 1;
 }
 
 /* return >0 if keybind is valid or 0 otherwise */
 inline int
 kh_valid_kp(Keypress kp)
 {
-    return !kp_is_equal(kp, INVALID_KP);
+        return !kp_is_equal(kp, INVALID_KP);
 }
 
 /* return >0 if keybind is valid or 0 otherwise */
 inline int
 kh_valid_kb(Keybind kb)
 {
-    return !kb_is_equal(kb, INVALID_KB);
+        return !kb_is_equal(kb, INVALID_KB);
 }
 
 /* Print a keypress using symbols to represent mods.
@@ -80,39 +80,39 @@ kh_valid_kb(Keybind kb)
 void
 kh_repr_kp(Keypress kp)
 {
-    if (kh_has_supr(kp))
-        printf("❖");
+        if (kh_has_supr(kp))
+                printf("❖");
 
-    if (kh_has_ctrl(kp))
-        printf("^");
+        if (kh_has_ctrl(kp))
+                printf("^");
 
-    if (kh_has_alt(kp))
-        printf("⎇");
+        if (kh_has_alt(kp))
+                printf("⎇");
 
-    if (kh_has_shift(kp))
-        printf("⇧");
+        if (kh_has_shift(kp))
+                printf("⇧");
 
-    if (kh_is_arrow(kp))
-        switch (kp.c)
-        {
-            case ARROW_UP:
-                printf("");
-                break;
-            case ARROW_DOWN:
-                printf("");
-                break;
-            case ARROW_LEFT:
-                printf("");
-                break;
-            case ARROW_RIGHT:
-                printf("");
-                break;
-        }
+        if (kh_is_arrow(kp))
+                switch (kp.c)
+                {
+                        case ARROW_UP:
+                                printf("");
+                                break;
+                        case ARROW_DOWN:
+                                printf("");
+                                break;
+                        case ARROW_LEFT:
+                                printf("");
+                                break;
+                        case ARROW_RIGHT:
+                                printf("");
+                                break;
+                }
 
-    else
-        printf("%s", REPR[(int) kp.c]);
+        else
+                printf("%s", REPR[(int) kp.c]);
 
-    putchar('\n');
+        putchar('\n');
 }
 
 /* Get a string that can be used to parse an arrow key with modifiers.
@@ -121,20 +121,20 @@ kh_repr_kp(Keypress kp)
 char *
 get_arrow_str(Arrowkey arrow, Mods mods, char *str)
 {
-    int i = 0;
-    if (mods & CTRL_MOD)
-        str[i++] = '^';
-    if (mods & ALT_MOD)
-        str[i++] = '&';
-    if (mods & SUPR_MOD)
-        str[i++] = '@';
+        int i = 0;
+        if (mods & CTRL_MOD)
+                str[i++] = '^';
+        if (mods & ALT_MOD)
+                str[i++] = '&';
+        if (mods & SUPR_MOD)
+                str[i++] = '@';
 
-    str[i++] = '#';
+        str[i++] = '#';
 
-    str[i] = 'a' + arrow - 1;
+        str[i] = 'a' + arrow - 1;
 
-    if (mods & SHIFT_MOD)
-        str[i] -= 'a' - 'A';
+        if (mods & SHIFT_MOD)
+                str[i] -= 'a' - 'A';
 
-    return str;
+        return str;
 }
