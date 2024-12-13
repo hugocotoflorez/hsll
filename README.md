@@ -14,6 +14,7 @@
 - Completion: autocomplete on unique command and same prefix
 - Background commands using `&`
 - Command concatenation: `&&`, `;`
+- Interactive apps from terminal (vi, less, ...)
 
 ## Compiling and installing
 
