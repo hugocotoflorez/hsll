@@ -10,6 +10,7 @@
 
 /* Globals that must not be changed manually */
 static int       ENABLED = 1; // set to 0 to pause handler
+static int       COOCKED = 1; // set to 0 to enable raw mode read
 static int       STARTED = 0; // control if it is already started
 static int       QUIT    = 0; // set to 1 to exit thread
 static pthread_t main_thread; // thread id
@@ -421,11 +422,11 @@ __keyboard_handler()
     ssize_t n;
     char    buf[BUFSIZE];
 
-    __enable_raw_mode();
+    kh_set_raw();
 
     while (!QUIT)
     {
-        if (ENABLED)
+        if (ENABLED && !COOCKED)
             switch (n = read(STDIN_FILENO, buf, 1))
             {
                 case -1:
@@ -437,15 +438,22 @@ __keyboard_handler()
 
                 default: /* Something is read */
 
+                    if (COOCKED)
+                    {
+                        buffer_add((Keypress) { .c = *buf, .mods = NO_MOD });
+                        break;
+                    }
+
                     /* If it is waiting for input and then
                      * it is called toggle, the first read
                      * would be executed if counter dont
                      * make read terminate.*/
-                    if (!ENABLED)
-                    {
-                        lseek(STDIN_FILENO, -n, SEEK_CUR);
-                        break;
-                    }
+                    /* Somewhere I read I cant lseek over stdin */
+                    // if (!ENABLED)
+                    // {
+                    //     lseek(STDIN_FILENO, -n, SEEK_CUR);
+                    //     break;
+                    // }
 
                     if (*buf == 0x1b) // esc
                         /* It can be a escape keypress or a
@@ -464,7 +472,7 @@ __keyboard_handler()
     }
 
     /* Disable raw mode at exit */
-    __disable_raw_mode();
+    kh_set_coocked();
 
     return NULL;
 }
@@ -479,7 +487,7 @@ __die()
      * exists, calling pthread join from here give me some
      * problems where it is not disabled so I came up with
      * this (temporal) solution. */
-    __disable_raw_mode();
+    kh_set_coocked();
 }
 
 /* Automatically initialize the buffer, if gcc or clang is used
@@ -492,6 +500,23 @@ __init__()
     array_new();
 }
 
+/* Active coocked mode and use escape sequences and mods as
+ * keybind options and modifiers */
+void
+kh_set_coocked()
+{
+    COOCKED = 1;
+    __disable_raw_mode();
+}
+
+/* Disable coocked mode and thread all read chars as raw chars */
+void
+kh_set_raw()
+{
+    COOCKED = 0;
+    __enable_raw_mode();
+}
+
 /* Get a keypress that is waiting in buffer and
  * remove it from buffer. If no keypress is in
  * buffer it return a keypress that return 0
@@ -499,6 +524,9 @@ __init__()
 Keypress
 kh_get()
 {
+    if (!ENABLED)
+        return INVALID_KP;
+
     return buffer_pop();
 }
 
@@ -509,11 +537,11 @@ kh_get()
 void
 kh_start()
 {
-    ENABLED = 1;
     if (!STARTED)
         pthread_create(&main_thread, NULL, __keyboard_handler, NULL);
     else
-        __enable_raw_mode();
+        kh_set_raw();
+    ENABLED = 1;
 }
 
 /* Pause the handler, the input would be read
@@ -522,7 +550,7 @@ void
 kh_pause()
 {
     ENABLED = 0;
-    __disable_raw_mode();
+    kh_set_coocked();
 }
 
 /* Toggle the handler status, the input would be read
@@ -535,9 +563,9 @@ kh_toggle()
     ENABLED ^= 1;
 
     if (ENABLED)
-        __enable_raw_mode();
+        kh_set_raw();
     else
-        __disable_raw_mode();
+        kh_set_coocked();
 }
 
 /* Close the handler and restore all values

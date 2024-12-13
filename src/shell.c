@@ -128,9 +128,9 @@ hsll_init()
 
 
     if (signal(SIGTERM, quit_handler) == SIG_ERR)
-        goto __quit__;
+        goto __free_recurses_jmp__;
     if (signal(SIGINT, kill_child) == SIG_ERR)
-        goto __quit__;
+        goto __free_recurses_jmp__;
 
     while (!__quit)
     {
@@ -143,7 +143,7 @@ hsll_init()
         free(s);
     }
 
-__quit__:
+__free_recurses_jmp__:
     hcf_destroy(&shell_opts);
     destroy_keyboard_handler();
     hist_save(expand_home(hist_file));

@@ -32,6 +32,8 @@
  * void     kh_pause();                                  *
  * void     kh_start();                                  *
  * void     kh_toggle();                                 *
+ * void     kh_set_coocked();                            *
+ * void     kh_set_raw();                                *
  * int      kh_has_ctrl(Keypress);                       *
  * int      kh_has_shift(Keypress);                      *
  * int      kh_has_alt(Keypress);                        *
@@ -255,6 +257,13 @@ void kh_pause();
  * kh_start starts the handler, both functions can be called
  * more than once without breaking the program (i hope). */
 void kh_toggle();
+
+/* Active coocked mode and use escape sequences and mods as
+ * keybind options and modifiers */
+void kh_set_coocked();
+
+/* Disable coocked mode and thread all read chars as raw chars */
+void kh_set_raw();
 
 /* Close the handler and restore all values
  * to default */

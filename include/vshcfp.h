@@ -40,4 +40,5 @@ void hcf_add(HcfField *field, const char *key, char *value);
 /* destroy a yet created Options table */
 void hcf_destroy(HcfOpts *opts);
 
+
 #endif

@@ -203,4 +203,5 @@ get_input_line(char *line, int linelen, FILE *input_file)
 
     else
         get_keyboard_input(line, linelen);
+
 }

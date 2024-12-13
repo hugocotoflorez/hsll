@@ -57,11 +57,12 @@ execute_raw(char **command, int *__stdin, int *__stdout)
         async = 1;
     }
 
+    kh_set_coocked();
     switch (child = fork())
     {
         case -1:
             perror("fork");
-            exit(1);
+            return 1;
 
         case 0:
             if (__stdin)
@@ -100,6 +101,7 @@ execute_raw(char **command, int *__stdin, int *__stdout)
 
             if (!async)
                 waitpid(child, &exit_status, 0);
+            kh_set_raw();
 
             child = 0;
     }
