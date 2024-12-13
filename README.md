@@ -5,7 +5,7 @@
 - Config file: ~/.hsllrc
 - Path variables expansion
 - Prompt (with colors and path variables)
-- cd ('-' and strange stuff is not implemented)
+- Cd ('-' and strange stuff is not implemented)
 - Aliases
 - History nav! with up and down arrows
 - History: ~/.hsll-hist to perserve hist between sessions
@@ -15,6 +15,7 @@
 - Background commands using `&`
 - Command concatenation: `&&`, `;`
 - Interactive apps from terminal (vi, less, ...)
+- Threat "some args with spaces" as a single arg (only doble quotes)
 
 ## Compiling and installing
 
@@ -23,12 +24,12 @@
 - Requisites: [hbuild](https://github.com/hugocotoflorez/hbuild)
 
 - For installing globaly: `hbuild install`.
-- for compile locally: `hbuild compile`
+- For compile locally: `hbuild compile`
 
 ### Using make
 
 - For installing globaly: `make install`.
-- for compile locally: `make`
+- For compile locally: `make`
 
 > [!NOTE]
 > `~/.local/bin/` have to be on PATH
@@ -45,4 +46,5 @@ placing `export HOST` in the parent shell config.
 - completion for alias
 - which (dont expand alias)
 - left and right arrows
+- $(command)
 
