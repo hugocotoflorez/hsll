@@ -41,7 +41,11 @@ cd(int argc, char **argv)
                 case 2:
                         if (*argv[1] != '/')
                         {
-                                /* Using getcwd expand links */
+                                /* If I use getcwd directly, it expand links and
+                                 * dont normalize ., .. so I decide to operate
+                                 * over PWD. User can have the behaviour of cd
+                                 * by manually changing PWD, but doing that is
+                                 * not expected neither useful. */
                                 strncpy(dir, getenv("PWD"), PATH_MAX - 1);
 
                                 /* If it is ., dont do nothing */
@@ -52,11 +56,11 @@ cd(int argc, char **argv)
                                  * cd the remaining path recursivelly */
                                 if (!memcmp(argv[1], "../", 3))
                                 {
-                                        cd(2, (char *[]) { "cd", ".." });
+                                        cd(2, (char *[]) { "cd", "..", NULL });
 
                                         if (argv[1][3] != '\0')
                                                 /* Check that argv[1] is not just "../" */
-                                                cd(2, (char *[]) { "cd", argv[1] + 3 });
+                                                cd(2, (char *[]) { "cd", argv[1] + 3, NULL });
 
                                         return 0;
                                 }
@@ -84,6 +88,7 @@ cd(int argc, char **argv)
                         }
 
 
+                        /* The first argument starts with a '/' */
                         if (!chdir(argv[1]))
                         {
                                 setenv("PWD", argv[1], 1);
