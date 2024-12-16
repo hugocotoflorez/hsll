@@ -96,6 +96,13 @@ get_next_quote(char *str)
 char *
 reduce_escaped_quote(char *str)
 {
+        /* I never test this. It should work */
+        char *c = str;
+        while ((c = strstr(c, "\\\"")))
+        {
+                memmove(c, c + 1, strlen(c + 1) + 1);
+                ++c;
+        }
         return str;
 }
 
