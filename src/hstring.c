@@ -75,32 +75,28 @@ get_next_quote(char *str)
 
         /* There is no '"' */
         if (!c)
-        {
-                // printf("There is no quote\n");
                 return strchr(str, 0);
-        }
 
         /* If the first char is an '"' it can not be escaped */
         if (c == str)
-        {
-                // printf("Quote at start\n");
                 return str;
-        }
 
         do
         {
                 /* If it is not escaped return their position */
                 if (c[-1] != '\\')
-                {
-                        // printf("Quote at offset %d\n", (int) (c - str));
                         return c;
-                }
 
         } while ((c = strchr(c, '"')));
 
         /* Escape the loop if there is no '"' and return the '\0' positon */
-        // printf("There is no quote\n");
         return strchr(str, 0);
+}
+
+char *
+reduce_escaped_quote(char *str)
+{
+        return str;
 }
 
 char **
@@ -125,8 +121,7 @@ argv_split_allowing_quotes(char *str)
         /* Search for the second quote. If there is no one,
          * return the current argv. This is an error in command
          * syntaxis. */
-        c = get_next_quote(str);
-        if (!*c)
+        if (!(c = get_next_quote(str))[0])
         {
                 fprintf(stderr, "Syntaxis error: no matching '\"'\n");
                 return argv;
@@ -135,6 +130,7 @@ argv_split_allowing_quotes(char *str)
         *c = 0;
 
         /* Append the quoted string to the argv list as a single arg */
+        reduce_escaped_quote(str);
         argv_extend(&argv, argv_dup((char *[]) { str, NULL }));
 
         /* Parse (using this function recursively) and append the

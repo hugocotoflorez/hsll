@@ -16,6 +16,7 @@ char *get_buffered_input();
 int hsll_init();
 void print_prompt();
 char *expand_alias(char *str);
+char *expand_commands(char *str);
 char *expand_variables(char *str);
 void quit_handler();
 HcfField *get_aliases();

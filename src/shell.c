@@ -60,6 +60,53 @@ quit_handler()
 }
 
 char *
+expand_commands(char *str)
+{
+        char *c = str + 1;
+        char *temp;
+        char *out;
+        void *s;
+
+        while ((c = strstr(c, "$(")))
+        {
+                if (c[-1] == '\\')
+                        continue;
+
+                *c = 0;
+                temp = c + 2;
+                // printf("FOUND: $(\n");
+
+                while ((temp = strstr(temp, ")")))
+                {
+                        if (temp[-1] == '\\')
+                                continue;
+
+                        // printf("FOUND: )\n");
+
+                        *temp = 0;
+                        // printf("REPL: [%s]\n", c + 2);
+                        out = execute_get_output(s = argv_split(c + 2));
+                        // printf("WITH: [%s]\n", out);
+                        free(s);
+                        memcpy(c + strlen(out), temp + 1, strlen(temp + 1));
+                        memcpy(c, out, strlen(out));
+
+                        // printf("RES: [%s]\n", str)
+                        free(out);
+                        break;
+                }
+
+                if (temp == NULL)
+                        return str;
+
+                c = temp + 1;
+        }
+
+
+        return str;
+}
+
+char *
 expand_alias(char *str)
 {
         int index;
@@ -138,6 +185,7 @@ hsll_init()
                 // if input file is null, get input from keyboard handler
                 get_input_line(line, LINELEN, NULL);
                 expand_alias(line);
+                expand_commands(line); // something like "ldd $(which hsll)"
                 expand_variables(line);
                 execute(s = argv_split_allowing_quotes(line), NULL, NULL);
                 free(s);

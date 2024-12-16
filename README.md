@@ -1,4 +1,15 @@
 # Hugo's Shell
+[![wakatime](https://wakatime.com/badge/user/2a7b4567-ab1f-4fb2-98ff-2b3fdbf94654/project/2aefd20c-7c80-4fe5-8523-e054068cd784.svg)](https://wakatime.com/badge/user/2a7b4567-ab1f-4fb2-98ff-2b3fdbf94654/project/2aefd20c-7c80-4fe5-8523-e054068cd784)
+## Beta version
+
+As I am developing this to have fun and I never aim to make an
+useful shell, I dont recommend anyone to use hsll. It is interesting to
+show how with a little C code you can build usefull apps and how easy is
+to build extendible and expansible apps if you split code in functions and
+files. Althought, it is an pseudo-posix shell, some stuff is not supported
+directly, and those things that are supported may faild sometimes.
+If you have to do non-compatible stuff from hsll I recommend to call
+bash using `bash -c "some command"` and this shuld work fine.
 
 ## Things that (may) work
 
@@ -16,6 +27,7 @@
 - Command concatenation: `&&`, `;`
 - Interactive apps from terminal (vi, less, ...)
 - Threat "some args with spaces" as a single arg (only doble quotes)
+- $(command) expansion
 
 ## Compiling and installing
 
@@ -46,5 +58,5 @@ placing `export HOST` in the parent shell config.
 - completion for alias
 - which (dont expand alias)
 - left and right arrows
-- $(command)
+- Escaped chars (at least between "" breaks everything)
 
