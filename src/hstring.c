@@ -87,13 +87,13 @@ get_next_quote(char *str)
                 if (c[-1] != '\\')
                         return c;
 
-        } while ((c = strchr(c, '"')));
+        } while ((c = strchr(c+1, '"')));
 
         /* Escape the loop if there is no '"' and return the '\0' positon */
-        return strchr(str, 0);
+        return str + strlen(str);
 }
 
-char *
+static char *
 reduce_escaped_quote(char *str)
 {
         /* I never test this. It should work */

@@ -77,14 +77,22 @@ insert_prev_command()
 }
 
 void
+die()
+{
+    kh_end();
+    printf("Bye!\n");
+    exit(0);
+}
+
+void
 init_keyboard_handler()
 {
         kh_start();
         kh_bind_create("^C", kill_child);
-        kh_bind_create("^Q", quit_handler);
         kh_bind_create("^I", tab_suggestions);
         kh_bind_create("#a", insert_prev_command); // arrow up
         kh_bind_create("#b", insert_next_command); // arrow down
+        kh_bind_create("^Q", die);
 }
 
 void
