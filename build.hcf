@@ -1,6 +1,5 @@
 default:
-
-cc      cc
+    cc      cc
     flags   -Wall -Wextra
     dflags  -fsanitize=null,address -g -O0
     src     src/*.c vshcfp/*.c vshkh/*.c

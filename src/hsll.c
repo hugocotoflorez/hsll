@@ -1,7 +1,24 @@
 #include "../include/hsll.h"
+#include <string.h>
+
+void
+version()
+{
+        printf(
+        "hsll (Hugo's Shell), version " __DATE__ "\n"
+        "This is free software; you are free to change and redistribute it\n"
+        "Threre is NO WARANTY, to the extent permitted by law.\n");
+}
 
 int
 main(int argc, char *argv[])
 {
-        return hsll_init(argc, argv);
+        if (argc == 2)
+                if (!strcmp(argv[1], "--version"))
+                {
+                        version();
+                        return 0;
+                }
+
+        return hsll_init();
 }

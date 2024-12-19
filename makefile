@@ -7,6 +7,7 @@ OBJ = $(SRC:.c=.o)
 
 $(OUT): $(OBJ)
 	$(CC) $(OBJ) $(INC) -o $(OUT)
+	rm ./src/hsll.o
 
 %.o: %.c $(LIB)
 	$(CC) -c $< $(INC) -o $@
