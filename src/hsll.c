@@ -6,8 +6,9 @@ version()
 {
         printf(
         "hsll (Hugo's Shell), version " __DATE__ "\n"
+        "https://github.com/hugocotoflorez/hsll\n\n"
         "This is free software; you are free to change and redistribute it\n"
-        "Threre is NO WARANTY, to the extent permitted by law.\n");
+        "There is NO WARANTY, to the extent permitted by law.\n");
 }
 
 int

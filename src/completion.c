@@ -34,9 +34,9 @@ cursor_goto_prompt()
 
         printf("\033[u"); // restore saved position
         printf("\033[?25h"); // show cursor
+        printf("\033[?1004h"); // enable reporting focus
         fflush(stdout);
 
-        // printf("\033[?1004h"); // enable reporting focus
 
         /* Get term size and cursor position */
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
@@ -176,6 +176,7 @@ static char *
 suggest_file(char *match)
 {
         char pattern[LINELEN];
+
         pattern[0] = 0;
         strcat(pattern, "ls -A 2>/dev/null | grep -oE '^");
         strcat(pattern, match);

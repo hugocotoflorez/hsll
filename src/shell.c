@@ -25,14 +25,20 @@ char *
 expand_home(char *str)
 {
         char *home;
+        char *c = str - 1;
+
         if (!(home = getenv("HOME")))
                 return str;
 
-        if (str[0] != '~')
-                return str;
+        while ((c = strchr(c + 1, '~')))
+        {
+                if (c != str && c[-1] == '\\')
+                        continue;
 
-        memmove(str + strlen(home) - 1, str, strlen(home) + strlen(str));
-        return memcpy(str, home, strlen(home));
+                memmove(c + strlen(home) - 1, c, strlen(home) + strlen(c));
+                memcpy(c, home, strlen(home));
+        }
+        return str;
 }
 
 char *
@@ -185,6 +191,7 @@ hsll_init()
                 // if input file is null, get input from keyboard handler
                 get_input_line(line, LINELEN, NULL);
                 expand_alias(line);
+                expand_home(line);
                 expand_commands(line); // something like "ldd $(which hsll)"
                 expand_variables(line);
                 execute(s = argv_split_allowing_quotes(line), NULL, NULL);
