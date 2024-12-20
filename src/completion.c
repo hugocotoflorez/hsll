@@ -37,7 +37,6 @@ cursor_goto_prompt()
         printf("\033[?1004h"); // enable reporting focus
         fflush(stdout);
 
-
         /* Get term size and cursor position */
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
         get_cursor_position(&r, &c);

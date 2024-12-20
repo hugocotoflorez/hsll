@@ -21,6 +21,143 @@ get_aliases()
         return aliases;
 }
 
+int
+__endswith(char *str, char *suffix)
+{
+        int l1, l2;
+        l1 = strlen(str);
+        l2 = strlen(suffix);
+
+        if (l1 < l2)
+                return 0;
+
+        return !strcmp(str + l1 - l2, suffix);
+}
+
+int
+__contains(char *str, char *suffix)
+{
+        return strstr(str, suffix) != NULL;
+}
+
+char *
+expand_asterisk(char *str)
+{
+        char **all_files;
+        char **match_files;
+        char *prefix;
+        char *suffix;
+        char *output;
+        char *c;
+        char *s = str;
+        char *sp;
+        int delim;
+        char temp;
+        // TODO
+        // *
+        // *.c
+        // a.*
+        // *.* <-- this break the logic
+        // ./*.c
+        // ./*/*.c
+
+        while ((c = strchr(s, '*')))
+        {
+                *c = 0; // change '*' by '\0'
+                sp = strrchr(s, ' '); // get last space before '*'
+                if (sp) // if there is a space before '*'
+                {
+                        prefix = sp + 1; // get prefix start
+                }
+                else
+                {
+                        prefix = s; // set prefix as all the string before '*'
+                }
+                // printf("PREFIX: %s\n", prefix);
+
+                /* Get the index if the first space or end of string. Set
+                 * it to \0 and use c+1 as the suffix. */
+                delim = strcspn(c + 1, " *\0");
+                temp = (c + 1)[delim]; // store the char at this position
+                (c + 1)[delim] = 0;
+                suffix = c + 1;
+
+
+                if (prefix[0])
+                        output = execute_get_output((char *[]) { "ls", prefix, NULL });
+                else
+                        output = execute_get_output((char *[]) { "ls", NULL });
+
+
+                char *nl = output;
+                while ((nl = strchr(nl, '\n')))
+                {
+                        *nl = ' ';
+                        ++nl;
+                }
+
+                // printf("OUTPUT: %s\n", output);
+
+                /* Set the matching files to none */
+                match_files = argv_dup((char **) { NULL });
+                all_files = argv_split(output);
+
+                for (char **file = all_files; *file; ++file)
+                {
+                        // printf("%s ENDWITH %s? ", *file, suffix);
+                        if (__endswith(*file, suffix)
+                            // cuando los prefix se pongan al *file
+                            // igual se puede hacer asi, de momento no
+                            //|| (temp == '*' && __contains(*file, suffix))
+                            ) /* file follows pattern */
+                        {
+                                argv_append(&match_files, *file);
+                        }
+                        // else
+                        // puts("no");
+                }
+
+                //printf("PREFIX: %s\n", prefix);
+                //printf("SUFFIX: %s\n", suffix);
+
+                char match_str[LINELEN];
+                match_str[0] = 0;
+                for (char **file = match_files; *file; ++file)
+                {
+                        strcat(match_str, prefix);
+                        strcat(match_str, *file);
+                        strcat(match_str, " ");
+                }
+                //printf("MATCHSTR: %s\n", match_str);
+
+                free(match_files);
+                free(all_files);
+                free(output);
+
+                /* Restore the char at this position */
+                (c + 1)[delim] = temp;
+
+                if (!match_str[0])
+                {
+                        s = c + 1;
+                        continue;
+                }
+
+                /* distance from prefix to next ' ' */
+                int dist = (c + 1 + delim) - prefix;
+
+                /* Replace from prefix to '*' with the matches */
+                memmove(prefix + strlen(match_str), c + 1 + delim, strlen(match_str) - dist);
+                memmove(prefix, match_str, strlen(match_str));
+
+                /* the min point to find a '*' */
+                s = c + 1;
+        }
+
+
+        return str;
+}
+
 char *
 expand_home(char *str)
 {
@@ -194,6 +331,7 @@ hsll_init()
                 expand_home(line);
                 expand_commands(line); // something like "ldd $(which hsll)"
                 expand_variables(line);
+                expand_asterisk(line);
                 execute(s = argv_split_allowing_quotes(line), NULL, NULL);
                 free(s);
         }

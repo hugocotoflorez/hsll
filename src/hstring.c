@@ -87,7 +87,7 @@ get_next_quote(char *str)
                 if (c[-1] != '\\')
                         return c;
 
-        } while ((c = strchr(c+1, '"')));
+        } while ((c = strchr(c + 1, '"')));
 
         /* Escape the loop if there is no '"' and return the '\0' positon */
         return str + strlen(str);
@@ -169,6 +169,9 @@ argv_dup(char **argv)
 {
         int len;
         char **ret;
+
+        if (argv == NULL)
+                return calloc(1, sizeof(char *));
 
         for (len = 0; argv[len]; ++len)
                 ;
@@ -268,17 +271,17 @@ path_variables_expansion(char *str)
                         while (is_valid)
                                 switch (*close)
                                 {
-                                        case ' ':
-                                        case '"':
-                                        case '\'':
-                                        case '\0':
-                                        case '\n':
-                                        case '\r':
-                                                need_pad = *close;
-                                                is_valid = 0;
-                                                break;
-                                        default:
-                                                ++close;
+                                case ' ':
+                                case '"':
+                                case '\'':
+                                case '\0':
+                                case '\n':
+                                case '\r':
+                                        need_pad = *close;
+                                        is_valid = 0;
+                                        break;
+                                default:
+                                        ++close;
                                 }
                 }
 
