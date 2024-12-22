@@ -28,6 +28,7 @@ bash using `bash -c "some command"` and this shuld work fine.
 - Interactive apps from terminal (vi, less, ...)
 - Threat "some args with spaces" as a single arg (only doble quotes)
 - $(command) expansion
+- POSIX file regex expansion (*.c and this stuff)
 
 ## Compiling and installing
 
