@@ -62,5 +62,4 @@ placing `export HOST` in the parent shell config.
 - completion for alias
 - which (dont expand alias)
 - left and right arrows
-- Escaped chars (at least between "" breaks everything)
 
