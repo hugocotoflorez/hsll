@@ -1,7 +1,7 @@
 # Hugo's Shell
 [![wakatime](https://wakatime.com/badge/user/2a7b4567-ab1f-4fb2-98ff-2b3fdbf94654/project/2aefd20c-7c80-4fe5-8523-e054068cd784.svg)](https://wakatime.com/badge/user/2a7b4567-ab1f-4fb2-98ff-2b3fdbf94654/project/2aefd20c-7c80-4fe5-8523-e054068cd784)
 
-[!Image](./images/version.png)
+![Image](./images/version.png)
 
 ## Beta version
 
