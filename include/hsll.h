@@ -12,12 +12,9 @@ void init_keyboard_handler();
 void destroy_keyboard_handler();
 char *get_buffered_input();
 
-/* shell.c */
+/* ../src/shell.c */
 int hsll_init();
 void print_prompt();
-char *expand_alias(char *str);
-char *expand_commands(char *str);
-char *expand_variables(char *str);
 void quit_handler();
 HcfField *get_aliases();
 
@@ -31,7 +28,6 @@ int is_builtin_command(char **command);
 int exec_builtin_command(char **command);
 
 /* ../src/hstring.c */
-char *path_variables_expansion(char *);
 char *argv_join(char **argv);
 char **argv_split(char *);
 char **argv_split_allowing_quotes(char *str);
@@ -53,5 +49,20 @@ int test_cd();
 
 /* completion.c */
 void tab_suggestions();
+
+/* ../src/expansions.c */
+typedef enum
+{
+        ExpansionNone = 0,
+        ExpansionHome = 1 << 0,
+        ExpansionCommand = 1 << 1,
+        ExpansionVariable = 1 << 2,
+        ExpansionExpression = 1 << 3,
+        ExpansionAlias = 1 << 3,
+        ExpansionAll = ~(0),
+
+} ExpansionType;
+
+char *expand(char *str, ExpansionType exclude);
 
 #endif // !HSLL_H

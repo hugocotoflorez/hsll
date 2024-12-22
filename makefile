@@ -1,5 +1,4 @@
-CC = cc -Wall -Wextra -O3
-# -O0 -fsanitize=address,null -g
+CC = cc -Wall -Wextra -O0 -fsanitize=address,null -g
 INC = -I./include
 LIB = $(wildcard ./include/*.h)
 OUT = hsll
