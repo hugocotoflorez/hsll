@@ -21,6 +21,9 @@ kill_child()
                 kill(child, SIGTERM);
                 /* ^C is printed in the same line as the prompt, this solve that */
                 puts("");
+
+                /* enable raw mode again */
+                kh_set_raw();
         }
         else
         {
@@ -60,51 +63,50 @@ execute_raw(char **command, int *__stdin, int *__stdout)
         kh_set_coocked();
         switch (child = fork())
         {
-                case -1:
-                        perror("fork");
-                        return 1;
+        case -1:
+                perror("fork");
+                return 1;
 
-                case 0:
-                        if (__stdin)
+        case 0:
+                if (__stdin)
+                {
+                        lseek(*__stdin, 0, SEEK_SET);
+                        if (dup2(*__stdin, STDIN_FILENO) == -1)
                         {
-                                lseek(*__stdin, 0, SEEK_SET);
-                                if (dup2(*__stdin, STDIN_FILENO) == -1)
-                                {
-                                        perror("dup2 stdin");
-                                        exit(1);
-                                }
-                        }
-
-                        if (__stdout && dup2(*__stdout, STDOUT_FILENO) == -1)
-                        {
-                                perror("dup2 stdout");
+                                perror("dup2 stdin");
                                 exit(1);
                         }
+                }
 
-                        if (is_builtin_command(command))
-                                exit(exec_builtin_command(command));
-
-                        /* Exception: executed in parent */
-                        if (!strcmp(command[0], "cd"))
-                                exit(0);
-                        if (!strcmp(command[0], "alias"))
-                                exit(0);
-
-                        execvp(command[0], command);
-                        perror(command[0]);
+                if (__stdout && dup2(*__stdout, STDOUT_FILENO) == -1)
+                {
+                        perror("dup2 stdout");
                         exit(1);
+                }
 
-                default:
+                if (is_builtin_command(command))
+                        exit(exec_builtin_command(command));
 
-                        if (!strcmp(command[0], "cd") ||
-                            !strcmp(command[0], "alias"))
-                                exec_builtin_command(command);
+                /* Exception: executed in parent */
+                if (!strcmp(command[0], "cd"))
+                        exit(0);
+                if (!strcmp(command[0], "alias"))
+                        exit(0);
 
-                        if (!async)
-                                waitpid(child, &exit_status, 0);
-                        kh_set_raw();
+                execvp(command[0], command);
+                perror(command[0]);
+                exit(1);
 
-                        child = 0;
+        default:
+
+                if (!strcmp(command[0], "cd") || !strcmp(command[0], "alias"))
+                        exec_builtin_command(command);
+
+                if (!async)
+                        waitpid(child, &exit_status, 0);
+                kh_set_raw();
+
+                child = 0;
         }
 
         return exit_status;
