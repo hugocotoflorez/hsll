@@ -130,13 +130,13 @@ __get_kp_from_char(char c)
 
         switch (c)
         {
-                // control keypress
-                case 0x0 ... 0x1F:
-                        kp.mods |= (CTRL_MOD | SHIFT_MOD);
-                        kp.c = c + '@'; // adjust key to representable key
-                        break;
+        // control keypress
+        case 0x0 ... 0x1F:
+                kp.mods |= (CTRL_MOD | SHIFT_MOD);
+                kp.c = c + '@'; // adjust key to representable key
+                break;
 
-                        // clang-format off
+                // clang-format off
         case 'A' ... 'Z':
             /* Chars that uses shift modifier */
         case '<': case '_': case '>': case '?':
@@ -144,9 +144,9 @@ __get_kp_from_char(char c)
         case '%': case '*': case '(': case ':':
         case '{': case '|': case '}': case '~':
         case '@': case '^': case '&':
-                        // clang-format on
-                        kp.mods = SHIFT_MOD;
-                        break;
+                // clang-format on
+                kp.mods = SHIFT_MOD;
+                break;
         }
         return kp;
 }
@@ -167,29 +167,29 @@ __get_arrow_kp(char c)
 {
         switch (c)
         {
-                case 'A':
-                        return ((Keypress) {
-                        .c = ARROW_UP,
-                        .mods = IS_ARROW,
-                        });
+        case 'A':
+                return ((Keypress) {
+                .c = ARROW_UP,
+                .mods = IS_ARROW,
+                });
 
-                case 'B':
-                        return ((Keypress) {
-                        .c = ARROW_DOWN,
-                        .mods = IS_ARROW,
-                        });
+        case 'B':
+                return ((Keypress) {
+                .c = ARROW_DOWN,
+                .mods = IS_ARROW,
+                });
 
-                case 'C':
-                        return ((Keypress) {
-                        .c = ARROW_RIGHT,
-                        .mods = IS_ARROW,
-                        });
+        case 'C':
+                return ((Keypress) {
+                .c = ARROW_RIGHT,
+                .mods = IS_ARROW,
+                });
 
-                case 'D':
-                        return ((Keypress) {
-                        .c = ARROW_LEFT,
-                        .mods = IS_ARROW,
-                        });
+        case 'D':
+                return ((Keypress) {
+                .c = ARROW_LEFT,
+                .mods = IS_ARROW,
+                });
         }
         return INVALID_KP;
 }
@@ -204,20 +204,20 @@ __supr_get_char(Keypress *kp, int supr_mod, int supr_key)
 {
         switch (supr_mod) /* SUPR MODS */
         {
-                case 0x2: // arrow + shift
-                case 0x3: // arrow + alt
-                case 0x4: // arrow + alt + shift
-                case 0x8: // arrow + ctrl + alt + shift
-                case 0xA: // supr + shift
-                case 0xC: // supr + shift + alt
-                case 0xE: // supr + shift + ctrl
-                case 0x10: // supr + shift + ctrl + alt
-                        kp->c = supr_shift_lookup[supr_key];
-                        break;
+        case 0x2: // arrow + shift
+        case 0x3: // arrow + alt
+        case 0x4: // arrow + alt + shift
+        case 0x8: // arrow + ctrl + alt + shift
+        case 0xA: // supr + shift
+        case 0xC: // supr + shift + alt
+        case 0xE: // supr + shift + ctrl
+        case 0x10: // supr + shift + ctrl + alt
+                kp->c = supr_shift_lookup[supr_key];
+                break;
 
-                default:
-                        kp->c = supr_key;
-                        break;
+        default:
+                kp->c = supr_key;
+                break;
         }
 }
 
@@ -227,57 +227,57 @@ __supr_get_mods(Keypress *kp, int supr_mod, int supr_key)
 {
         switch (supr_mod) /* SUPR MODS */
         {
-                case 0x2: // arrow + shift
-                        kp->mods |= (SHIFT_MOD);
-                        break;
-                case 0x3: // arrow + alt
-                        kp->mods |= (ALT_MOD);
-                        break;
-                case 0x4: // arrow + alt + shift
-                        kp->mods |= (ALT_MOD | SHIFT_MOD);
-                        break;
-                case 0x5: // arrow + ctrl
-                        kp->mods |= (CTRL_MOD);
-                        break;
-                case 0x7: // arrow + ctrl + alt
-                        kp->mods |= (CTRL_MOD | ALT_MOD);
-                        break;
-                case 0x8: // arrow + ctrl + alt + shift
-                        kp->mods |= (CTRL_MOD | ALT_MOD | SHIFT_MOD);
-                        break;
-                case 0x9:
-                        /* This is the base case for supr mods, but as it
-                         * is shared for arrow keypresses, I add the super mod
-                         * here because othersize arrow dont have this mod. In
-                         * the supr cases remaining the supr mod is add after
-                         * (or before i dont remember) calling this function */
-                        kp->mods |= (SUPR_MOD);
-                        break;
-                case 0xA: // shift
-                        kp->mods |= (SUPR_MOD | SHIFT_MOD);
-                        break;
-                case 0xB: // alt
-                        kp->mods |= (SUPR_MOD | ALT_MOD);
-                        break;
-                case 0xD: // ctrl
-                        kp->mods |= (SUPR_MOD | CTRL_MOD);
-                        break;
-                case 0xC: // shift + alt
-                        kp->mods |= (SUPR_MOD | SHIFT_MOD | ALT_MOD);
-                        break;
-                case 0xE: // shift + ctrl
-                        kp->mods |= (SUPR_MOD | CTRL_MOD | SHIFT_MOD);
-                        break;
-                case 0xF: // ctrl + alt
-                        kp->mods |= (SUPR_MOD | CTRL_MOD | ALT_MOD);
-                        break;
-                case 0x10: // shift + ctrl + alt
-                        kp->mods |= (SUPR_MOD | CTRL_MOD | SHIFT_MOD | ALT_MOD);
-                        break;
+        case 0x2: // arrow + shift
+                kp->mods |= (SHIFT_MOD);
+                break;
+        case 0x3: // arrow + alt
+                kp->mods |= (ALT_MOD);
+                break;
+        case 0x4: // arrow + alt + shift
+                kp->mods |= (ALT_MOD | SHIFT_MOD);
+                break;
+        case 0x5: // arrow + ctrl
+                kp->mods |= (CTRL_MOD);
+                break;
+        case 0x7: // arrow + ctrl + alt
+                kp->mods |= (CTRL_MOD | ALT_MOD);
+                break;
+        case 0x8: // arrow + ctrl + alt + shift
+                kp->mods |= (CTRL_MOD | ALT_MOD | SHIFT_MOD);
+                break;
+        case 0x9:
+                /* This is the base case for supr mods, but as it
+                 * is shared for arrow keypresses, I add the super mod
+                 * here because othersize arrow dont have this mod. In
+                 * the supr cases remaining the supr mod is add after
+                 * (or before i dont remember) calling this function */
+                kp->mods |= (SUPR_MOD);
+                break;
+        case 0xA: // shift
+                kp->mods |= (SUPR_MOD | SHIFT_MOD);
+                break;
+        case 0xB: // alt
+                kp->mods |= (SUPR_MOD | ALT_MOD);
+                break;
+        case 0xD: // ctrl
+                kp->mods |= (SUPR_MOD | CTRL_MOD);
+                break;
+        case 0xC: // shift + alt
+                kp->mods |= (SUPR_MOD | SHIFT_MOD | ALT_MOD);
+                break;
+        case 0xE: // shift + ctrl
+                kp->mods |= (SUPR_MOD | CTRL_MOD | SHIFT_MOD);
+                break;
+        case 0xF: // ctrl + alt
+                kp->mods |= (SUPR_MOD | CTRL_MOD | ALT_MOD);
+                break;
+        case 0x10: // shift + ctrl + alt
+                kp->mods |= (SUPR_MOD | CTRL_MOD | SHIFT_MOD | ALT_MOD);
+                break;
 
-                default:
-                        printf("Undetected state: %d - %d\n", supr_key, supr_mod);
-                        break;
+        default:
+                printf("Undetected state: %d - %d\n", supr_key, supr_mod);
+                break;
         }
 }
 
@@ -351,65 +351,65 @@ __esc_special(char *buf)
          * it can be determined what is the type of the keypress */
         switch (n = read(STDIN_FILENO, buf + 1, BUFSIZE - 1))
         {
-                case 2:
-                        /* All escape sequences start with \e[, so if the
-                         * first characters appears but not the second it is not
-                         * a scape sequence */
-                        if (buf[1] != '[')
-                                goto __normal__; // just to avoid nesting
+        case 2:
+                /* All escape sequences start with \e[, so if the
+                 * first characters appears but not the second it is not
+                 * a scape sequence */
+                if (buf[1] != '[')
+                        goto __normal__; // just to avoid nesting
 
-                        /* Check if keypress is a single arrow without
-                         * mods. (\e[A - \e[D representation ) If not,
-                         * analize keypresses individually */
-                        kp = __get_arrow_kp(buf[2]);
-                        if (kh_valid_kp(kp))
-                        {
-                                __kp_action(kp);
-                                return;
-                        }
-
-                __normal__:
-                        __analize(buf[0]);
-                        __analize(buf[1]);
-                        __analize(buf[2]);
-
-                        return;
-
-                case 1:
-                        // Alt mod
-                        /* Analize single key for allow alt+ctrl */
-                        kp = __get_kp_from_char(buf[1]);
-                        /* This piece of code is only called
-                         * if alt is used with ctrl without shift, or
-                         * without mods, so as ctrl set shift mod I
-                         * have to unset it manually. */
-                        if (kp.mods & CTRL_MOD)
-                                kp.mods &= ~SHIFT_MOD;
-                        /* Char is represented as upercase because it
-                         * calls ctrl logic that is limited to upercase
-                         * letters and a little symbols. */
-                        kp.mods |= ALT_MOD;
+                /* Check if keypress is a single arrow without
+                 * mods. (\e[A - \e[D representation ) If not,
+                 * analize keypresses individually */
+                kp = __get_arrow_kp(buf[2]);
+                if (kh_valid_kp(kp))
+                {
                         __kp_action(kp);
                         return;
+                }
 
-                case 0: // no input
-                case -1: // eof -> no input
-                        __analize(buf[0]);
-                        break;
+        __normal__:
+                __analize(buf[0]);
+                __analize(buf[1]);
+                __analize(buf[2]);
 
-                default:
-                        /* supr mods end with 'u'. Also
-                         * alt-ctrl-shift-a, so I change some
-                         * code to allow this behaviour.*/
-                        if (buf[n] == 'u')
-                                kp = __get_supr_kp(buf);
+                return;
 
-                        /* arrow + mods end with 'A' - 'D' */
-                        else if (buf[n] >= 'A' && buf[n] <= 'D')
-                                kp = __get_arrow(buf);
+        case 1:
+                // Alt mod
+                /* Analize single key for allow alt+ctrl */
+                kp = __get_kp_from_char(buf[1]);
+                /* This piece of code is only called
+                 * if alt is used with ctrl without shift, or
+                 * without mods, so as ctrl set shift mod I
+                 * have to unset it manually. */
+                if (kp.mods & CTRL_MOD)
+                        kp.mods &= ~SHIFT_MOD;
+                /* Char is represented as upercase because it
+                 * calls ctrl logic that is limited to upercase
+                 * letters and a little symbols. */
+                kp.mods |= ALT_MOD;
+                __kp_action(kp);
+                return;
 
-                        __kp_action(kp);
-                        break;
+        case 0: // no input
+        case -1: // eof -> no input
+                __analize(buf[0]);
+                break;
+
+        default:
+                /* supr mods end with 'u'. Also
+                 * alt-ctrl-shift-a, so I change some
+                 * code to allow this behaviour.*/
+                if (buf[n] == 'u')
+                        kp = __get_supr_kp(buf);
+
+                /* arrow + mods end with 'A' - 'D' */
+                else if (buf[n] >= 'A' && buf[n] <= 'D')
+                        kp = __get_arrow(buf);
+
+                __kp_action(kp);
+                break;
         }
 }
 
@@ -429,43 +429,42 @@ __keyboard_handler()
                 if (ENABLED && !COOCKED)
                         switch (n = read(STDIN_FILENO, buf, 1))
                         {
-                                case -1:
-                                case 0:
-                                        /* If nothing was read, sleep a little
-                                         * to avoid use too much cpu */
-                                        usleep(ST_NRD);
+                        case -1:
+                        case 0:
+                                /* If nothing was read, sleep a little
+                                 * to avoid use too much cpu */
+                                usleep(ST_NRD);
+                                break;
+
+                        default: /* Something is read */
+
+                                if (COOCKED)
+                                {
+                                        buffer_add((Keypress) { .c = *buf, .mods = NO_MOD });
                                         break;
+                                }
 
-                                default: /* Something is read */
+                                /* If it is waiting for input and then
+                                 * it is called toggle, the first read
+                                 * would be executed if counter dont
+                                 * make read terminate.*/
+                                /* Somewhere I read I cant lseek over stdin */
+                                // if (!ENABLED)
+                                // {
+                                //     lseek(STDIN_FILENO, -n,
+                                //     SEEK_CUR); break;
+                                // }
 
-                                        if (COOCKED)
-                                        {
-                                                buffer_add((Keypress) {
-                                                .c = *buf, .mods = NO_MOD });
-                                                break;
-                                        }
+                                if (*buf == 0x1b) // esc
+                                        /* It can be a escape keypress or a
+                                         * escape sequence, both cases are handled
+                                         * into the following function */
+                                        __esc_special(buf);
 
-                                        /* If it is waiting for input and then
-                                         * it is called toggle, the first read
-                                         * would be executed if counter dont
-                                         * make read terminate.*/
-                                        /* Somewhere I read I cant lseek over stdin */
-                                        // if (!ENABLED)
-                                        // {
-                                        //     lseek(STDIN_FILENO, -n,
-                                        //     SEEK_CUR); break;
-                                        // }
+                                else
+                                        __analize(*buf);
 
-                                        if (*buf == 0x1b) // esc
-                                                /* It can be a escape keypress or a
-                                                 * escape sequence, both cases are handled
-                                                 * into the following function */
-                                                __esc_special(buf);
-
-                                        else
-                                                __analize(*buf);
-
-                                        break;
+                                break;
                         }
 
                 else // keyboard handled is not enabled
@@ -506,16 +505,22 @@ __init__()
 void
 kh_set_coocked()
 {
-        COOCKED = 1;
-        __disable_raw_mode();
+        if (!COOCKED)
+        {
+                COOCKED = 1;
+                __disable_raw_mode();
+        }
 }
 
 /* Disable coocked mode and thread all read chars as raw chars */
 void
 kh_set_raw()
 {
-        COOCKED = 0;
-        __enable_raw_mode();
+        if (COOCKED)
+        {
+                COOCKED = 0;
+                __enable_raw_mode();
+        }
 }
 
 /* Get a keypress that is waiting in buffer and
