@@ -147,7 +147,9 @@ char *
 execute_get_output(char **command)
 {
         int temp_stdout;
+        int status;
         char buf[MAXOUTLEN + 1]; // output buffer
+
         memset(buf, 0, MAXOUTLEN + 1);
 
         /* Open a temp file */
@@ -158,12 +160,21 @@ execute_get_output(char **command)
                 return NULL;
         }
 
-        execute(command, NULL, &temp_stdout);
+        status = execute(command, NULL, &temp_stdout);
+
+        /* If execute ret code is not 0 it has an error */
+        if (status)
+        {
+                close(temp_stdout);
+                return strdup("");
+        }
 
         /* Move content of temp file to output buffer */
         // printf("Trying to read from file...\n");
         lseek(temp_stdout, 0, SEEK_SET);
         read(temp_stdout, buf, MAXOUTLEN);
+
+        close(temp_stdout);
         buf[MAXOUTLEN] = 0;
 
         return strdup(buf);
