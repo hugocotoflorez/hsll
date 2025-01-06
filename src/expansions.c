@@ -118,7 +118,7 @@ expand_expression(char *str)
         char *start;
         int l;
         int dist;
-        int count;
+        unsigned char count;
         char count_str[4];
         char temp;
 
@@ -161,7 +161,11 @@ expand_expression(char *str)
                                 ++count;
 
                 /* Get the string repr of COUNT */
-                snprintf(count_str, 3, "%d", count);
+                /* COUNT_STR can not overflow as it can store 3 digits and a \0.
+                 * as COUNT is a unsigned char,
+                 * [0, 255] it can only have 3 digits. */
+                sprintf(count_str, "%u", count);
+
 
                 /* Use find to expand the pattern and get the match files */
                 out = execute_get_output(
