@@ -165,7 +165,17 @@ execute_get_output(char **command)
         /* If execute ret code is not 0 it has an error */
         if (status)
         {
-                close(temp_stdout);
+		/* I am testing hsll using termux. As I can not have hsll in PATH
+		 * the "which hsll" call fails. It was handled yet, but aparently
+		 * this free should not be done. I dont know why, the error said
+		 * that fd 3 is owned by someone or something like that.
+		 * What I think is
+		 * 1) execute dont handle correctly files on failture
+		 * 2) execute close the file yet 
+		 * Hugo Coto, 8e2025 -> temp solution
+		 * -- At least I have to make sure that the files are closed correctly.
+		 *  TODO */
+                // close(temp_stdout);
                 return strdup("");
         }
 
