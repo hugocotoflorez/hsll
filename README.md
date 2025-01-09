@@ -64,3 +64,5 @@ placing `export HOST` in the parent shell config.
 - left and right arrows
 - close temp file correcly
 
+
+
