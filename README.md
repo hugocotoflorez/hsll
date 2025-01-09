@@ -62,4 +62,5 @@ placing `export HOST` in the parent shell config.
 - completion for alias
 - which (dont expand alias)
 - left and right arrows
+- close temp file correcly
 
