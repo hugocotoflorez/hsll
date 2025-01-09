@@ -98,7 +98,6 @@ execute_raw(char **command, int *__stdin, int *__stdout)
                 exit(1);
 
         default:
-
                 if (!strcmp(command[0], "cd") || !strcmp(command[0], "alias"))
                         exec_builtin_command(command);
 
@@ -146,45 +145,49 @@ execute_concat(char **command, int *__stdin, int *__stdout)
 char *
 execute_get_output(char **command)
 {
-        int temp_stdout;
+        FILE *temp_stdout;
+        int temp_stdout_fd;
         int status;
         char buf[MAXOUTLEN + 1]; // output buffer
 
         memset(buf, 0, MAXOUTLEN + 1);
 
         /* Open a temp file */
-        temp_stdout = fileno(tmpfile());
-        if (temp_stdout < 0)
+        temp_stdout = tmpfile();
+        if (temp_stdout == NULL)
         {
-                perror("fileno(tmpfile())");
+                perror("tmpfile");
                 return NULL;
         }
 
-        status = execute(command, NULL, &temp_stdout);
+        /* Get the file descriptor of the temp stdout */
+        temp_stdout_fd = fileno(temp_stdout);
+
+        status = execute(command, NULL, &temp_stdout_fd);
 
         /* If execute ret code is not 0 it has an error */
         if (status)
         {
-		/* I am testing hsll using termux. As I can not have hsll in PATH
-		 * the "which hsll" call fails. It was handled yet, but aparently
-		 * this free should not be done. I dont know why, the error said
-		 * that fd 3 is owned by someone or something like that.
-		 * What I think is
-		 * 1) execute dont handle correctly files on failture
-		 * 2) execute close the file yet
-		 * Hugo Coto, 8e2025 -> temp solution
-		 * -- At least I have to make sure that the files are closed correctly.
-		 *  TODO */
-                // close(temp_stdout);
+                /* I am testing hsll using termux. As I can not have hsll in PATH
+                 * the "which hsll" call fails. It was handled yet, but aparently
+                 * this free should not be done. I dont know why, the error said
+                 * that fd 3 is owned by someone or something like that.
+                 * What I think is
+                 * 1) execute dont handle correctly files on failture
+                 * 2) execute close the file yet
+                 * Hugo Coto, 8e2025 -> temp solution
+                 * -- At least I have to make sure that the files are closed correctly.
+                 *  TODO */
+                fclose(temp_stdout);
                 return strdup("");
         }
 
         /* Move content of temp file to output buffer */
         // printf("Trying to read from file...\n");
-        lseek(temp_stdout, 0, SEEK_SET);
-        read(temp_stdout, buf, MAXOUTLEN);
+        lseek(temp_stdout_fd, 0, SEEK_SET);
+        read(temp_stdout_fd, buf, MAXOUTLEN);
 
-        close(temp_stdout);
+        fclose(temp_stdout);
         buf[MAXOUTLEN] = 0;
 
         return strdup(buf);
@@ -208,8 +211,8 @@ execute(char **command, int *__stdin, int *__stdout)
         else
                 temp_stdin = dup(STDIN_FILENO);
 
-        /* temp_in      dup(STDIN)
-         * temp_out     NEW
+        /* temp_in      dup(STDIN) | __stdin
+         * temp_out     NEW        | __stdout
          *
          * temp_in      NEW     <- close prev temp_in (dup(STDIN))
          * temp_out     NEW2
