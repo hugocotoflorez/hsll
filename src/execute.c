@@ -10,7 +10,7 @@
 #define MAXOUTLEN 4095
 
 // PID of proc in execution or 0 if nothing is running
-int child = 0;
+static volatile int child = 0;
 
 /* Send sigterm to proc in execution */
 void
@@ -171,7 +171,7 @@ execute_get_output(char **command)
 		 * that fd 3 is owned by someone or something like that.
 		 * What I think is
 		 * 1) execute dont handle correctly files on failture
-		 * 2) execute close the file yet 
+		 * 2) execute close the file yet
 		 * Hugo Coto, 8e2025 -> temp solution
 		 * -- At least I have to make sure that the files are closed correctly.
 		 *  TODO */
