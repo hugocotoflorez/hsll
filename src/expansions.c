@@ -249,12 +249,9 @@ expand_variables(char *str)
                 if (!(env = getenv(env)))
                         env = "?";
 
-                else
-                {
                         memmove(c + strlen(env ?: "") + (need_pad ? 1 : 0),
                                 close + 1, strlen(close + 1) + 1);
                         memmove(c, env, strlen(env ?: ""));
-                }
 
                 if (need_pad)
                         c[strlen(env ?: "")] = need_pad;
