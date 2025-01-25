@@ -4,66 +4,62 @@
 #include <string.h>
 #include <unistd.h>
 
-static char hist[LINELEN][HIST_SIZE];
+static char hist[HIST_SIZE][LINELEN];
 static int entry_ptr = 0;
 
 int
 hist_load(const char *filename)
 {
-        int fd;
+        FILE *file;
         ssize_t n;
+        char buf[LINELEN];
 
         /* Initialize hsit to zeros to avoid UB at reading
          * not-yet-written entries */
         memset(hist, 0, HIST_SIZE * LINELEN);
 
-        fd = open(filename, O_RDONLY, 0666);
-        if (fd < 0)
+        file = fopen(filename, "r");
+        if (file == NULL)
         {
                 perror(filename);
                 return 1;
         }
 
-        lseek(fd, -LINELEN * HIST_SIZE, SEEK_END);
-
-        if ((n = read(fd, hist, LINELEN * HIST_SIZE)) < 0)
+        while (fgets(buf, sizeof buf - 1, file))
         {
-                perror("read");
-                return 1;
+                // buf[strcspn(buf, "\n\r\0")] = 0;
+                hist_append(buf);
         }
 
-        /* I know there would be a constant way to calculate this but read
-         * return LINELEN*HIST_SIZE if there is no HIST_SIZE entries so
-         * I dont know how to get the number of hist-file entries. As I'm
-         * using open-read and not f similars I think I dont have a clear
-         * way to split by lines and count nl and cr. Hope someone find
-         * how to do that .Thanks! ( I hate O(n) stuff :/ ) */
-        for (int i = 0; i < HIST_SIZE; ++i)
-                if (!*hist[i])
-                        /* Get the last empty entry */
-                        entry_ptr = i;
-
+        fclose(file);
         return 0;
 }
 
 int
 hist_save(const char *filename)
 {
-        int fd;
-        /* Problem: if there is hist-file entries in HIST, it appends it again
-         * when appending to the hist-file */
-        fd = open(filename, O_RDWR | O_APPEND | O_CREAT, 0666);
-        if (fd < 0)
+        FILE *file;
+        char *temp;
+
+        file = fopen(filename, "a");
+        if (file == NULL)
         {
                 perror(filename);
                 return 1;
         }
 
-        if (write(fd, hist, HIST_SIZE * LINELEN) <= 0)
+        for (int i = 0; i < HIST_SIZE; ++i)
         {
-                perror("write");
-                return 1;
+                temp = get_hist_entry(HIST_SIZE - i);
+                if (*temp)
+                {
+                        // printf("SAVE %s\n", temp);
+                        write(fileno(file), temp, strlen(temp));
+                        write(fileno(file), "\0\r\n", 3);
+                }
         }
+
+        fclose(file);
 
         return 0;
 }
@@ -77,13 +73,25 @@ get_hist_entry(int offset)
                 offset = HIST_SIZE;
 
         entry = (offset + entry_ptr) % HIST_SIZE;
+        // printf("[%d] GET HIST[%d] = %s\n", getpid(), entry, hist[entry]);
         return hist[entry];
+}
+
+void
+hist_reverse_append(char *entry)
+{
+        strncpy(hist[entry_ptr], entry, LINELEN - 3);
+        // printf("[%d] APPEND HIST[%d] = %s\n", getpid(), entry_ptr, hist[entry_ptr]);
+
+        if (++entry_ptr == HIST_SIZE)
+                entry_ptr = 0;
 }
 
 void
 hist_append(char *entry)
 {
         strncpy(hist[entry_ptr], entry, LINELEN - 3);
+        // printf("[%d] APPEND HIST[%d] = %s\n", getpid(), entry_ptr, hist[entry_ptr]);
 
         if (!entry_ptr--)
                 entry_ptr = HIST_SIZE - 1;

@@ -3,7 +3,7 @@
    419   1293  12120 src/completion.c
    257    800   7666 src/execute.c
    277    786   7894 src/expansions.c
-    96    295   2293 src/history.c
+   104    230   2256 src/history.c
     25     60    583 src/hsll.c
    243    713   5668 src/hstring.c
    214    446   5881 src/io.c
@@ -20,4 +20,4 @@
     68    173   1520 include/hsll.h
     44    209   1268 include/vshcfp.h
    550   2184  17346 include/vshkh.h
-  4250  13360 117056 total
+  4258  13295 117019 total
