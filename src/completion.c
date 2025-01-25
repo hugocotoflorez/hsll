@@ -1,5 +1,6 @@
 #include "../include/hsll.h"
 #include "../include/vshkh.h"
+#include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,14 +10,40 @@
 #include <unistd.h>
 
 /* Number of suggestions displayed */
-#define SUGGEST_CHR "5"
 #define SUGGEST_NUM 5
 
 static int
-is_file(const char *name)
+is_file(const char *_path)
 {
         struct stat path_stat;
-        return stat(name, &path_stat) ?: !S_ISDIR(path_stat.st_mode);
+        char path[128];
+        char *sep;
+
+        if (_path == NULL || path == NULL + 1)
+                return 1;
+
+        *path = 0;
+        strcat(path, _path);
+        expand(path, ExpansionAll & ~ExpansionHome);
+
+        /* Try to check if path is a dir using stat */
+        if (stat(path, &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
+                return 0;
+
+        sep = strrchr(path, '/');
+
+        /* If it has no '/' or there is nothing before '/' I
+         * would threat is as a file */
+        if (sep == NULL || sep[1] == '\0')
+                return 1;
+
+        /* If path last name has a point and is not in the
+         * begining, I would think that it is a file */
+        if (strchr(sep + 2, '.'))
+                return 1;
+
+        /* I hope this return is never reached */
+        return 1;
 }
 
 static int
@@ -330,7 +357,7 @@ tab_suggestions()
                         printf("%s", out_list[0] + strlen(directory_sep + 1));
 
                         /* Check if competion is a file or folder */
-                        if (is_file(out_list[0]))
+                        if (is_file(strrchr(get_buffered_input(), ' ') + 1))
                         {
                                 strcat(get_buffered_input(), " ");
                                 putchar(' ');

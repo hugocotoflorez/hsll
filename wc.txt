@@ -1,6 +1,6 @@
     61    112   1149 src/builtin.c
-   105    274   3539 src/cd.c
-   392   1172  11344 src/completion.c
+   108    283   3147 src/cd.c
+   419   1293  12120 src/completion.c
    257    800   7666 src/execute.c
    277    786   7894 src/expansions.c
     96    295   2293 src/history.c
@@ -20,4 +20,4 @@
     68    173   1520 include/hsll.h
     44    209   1268 include/vshcfp.h
    550   2184  17346 include/vshkh.h
-  4220  13230 116672 total
+  4250  13360 117056 total

@@ -58,7 +58,7 @@ typedef enum
         ExpansionCommand = 1 << 1,
         ExpansionVariable = 1 << 2,
         ExpansionExpression = 1 << 3,
-        ExpansionAlias = 1 << 3,
+        ExpansionAlias = 1 << 4,
         ExpansionAll = ~(0),
 
 } ExpansionType;
