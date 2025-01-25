@@ -1,14 +1,24 @@
 #include "../include/hsll.h"
 #include "../include/vshkh.h"
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 /* Number of suggestions displayed */
 #define SUGGEST_CHR "5"
 #define SUGGEST_NUM 5
+
+static int
+is_file(const char *name)
+{
+        struct stat path_stat;
+        stat(name, &path_stat);
+        return S_ISREG(path_stat.st_mode);
+}
 
 static int
 get_cursor_position(int *row, int *col)
@@ -21,15 +31,29 @@ get_cursor_position(int *row, int *col)
 
         write(STDOUT_FILENO, "\033[6n", 4);
         fflush(stdout);
-        read(STDIN_FILENO, response, sizeof(response) - 1);
+        read(STDIN_FILENO, response, sizeof response - 1);
 
         return sscanf(response, "\033[%d;%dR", row, col) - 2;
+}
+
+static struct winsize ws;
+static void
+get_winsize()
+{
+        /* Get term size and cursor position */
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+}
+
+__attribute__((constructor)) void
+__init_ws__()
+{
+        get_winsize();
+        signal(SIGWINCH, get_winsize);
 }
 
 static void
 cursor_goto_prompt()
 {
-        struct winsize ws;
         int r, c;
 
         printf("\033[u"); // restore saved position
@@ -37,8 +61,6 @@ cursor_goto_prompt()
         printf("\033[?1004h"); // enable reporting focus
         fflush(stdout);
 
-        /* Get term size and cursor position */
-        ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
         get_cursor_position(&r, &c);
 
         /* It is supposed that completion cant scroll
@@ -272,11 +294,6 @@ tab_suggestions()
                 out = suggest_file_nomatch();
         }
 
-        /* Change newlines to spaces */
-        nl = out;
-        while ((nl = strchr(nl, '\n')))
-                *nl = ' ';
-
         if (strlen(out) == 0)
         {
                 cursor_goto_prompt();
@@ -286,6 +303,11 @@ tab_suggestions()
                 fflush(stdout);
                 return;
         }
+
+        /* Change newlines to spaces */
+        nl = out;
+        while ((nl = strchr(nl, '\n')))
+                *nl = ' ';
 
         out_list = argv_split_allowing_quotes(out);
         remove_dup(&out_list);
@@ -312,15 +334,15 @@ tab_suggestions()
                          * a folder, but in the 99% of the cases it work fine.
                          * For those filenames without extension, just press
                          * backspace after completion is done. */
-                        if (!strchr(out_list[0], '.'))
-                        {
-                                strcat(get_buffered_input(), "/");
-                                putchar('/');
-                        }
-                        else
+                        if (is_file(out_list[0]))
                         {
                                 strcat(get_buffered_input(), " ");
                                 putchar(' ');
+                        }
+                        else
+                        {
+                                strcat(get_buffered_input(), "/");
+                                putchar('/');
                         }
                 }
 

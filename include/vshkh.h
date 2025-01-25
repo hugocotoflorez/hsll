@@ -4,9 +4,8 @@
  * Author: Hugo Coto Florez                              *
  *                                                       *
  * Wellcome to Very Simple Hugo's Keyboard Handler       *
- * The aim of this proyect is to give an easy to         *
- * use keyboard handler. This proyect is part of         *
- * nhoutpad2.                                            *
+ * The aim of this proyect is to give an easy API        *
+ * for a keyboard handler.                               *
  *                                                       *
  * Contact info: hugo.coto@rai.usc.es                    *
  * -> github.com/hugocotoflorez(/vshkh)                  *
@@ -46,19 +45,19 @@
 
 /* Ascii representable form of all 7-bit value */
 static const char *REPR[] = {
-    "NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL", "BS",  "HT",
-    "LF",  "VT",  "FF",  "CR",  "SO",  "SI",  "DLE", "DC1", "DC2", "DC3",
-    "DC4", "NAK", "SYN", "ETB", "CAN", "EM",  "SUB", "ESC", "FS",  "GS",
-    "RS",  "US",  "SP",  "!",   "\"",  "#",   "$",   "%",   "&",   "'",
-    "(",   ")",   "*",   "+",   ",",   "-",   ".",   "/",   "0",   "1",
-    "2",   "3",   "4",   "5",   "6",   "7",   "8",   "9",   ":",   ";",
-    "<",   "=",   ">",   "?",   "@",   "A",   "B",   "C",   "D",   "E",
-    "F",   "G",   "H",   "I",   "J",   "K",   "L",   "M",   "N",   "O",
-    "P",   "Q",   "R",   "S",   "T",   "U",   "V",   "W",   "X",   "Y",
-    "Z",   "[",   "\\",  "]",   "^",   "_",   "`",   "a",   "b",   "c",
-    "d",   "e",   "f",   "g",   "h",   "i",   "j",   "k",   "l",   "m",
-    "n",   "o",   "p",   "q",   "r",   "s",   "t",   "u",   "v",   "w",
-    "x",   "y",   "z",   "{",   "|",   "}",   "~",   "DEL",
+        "NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL", "BS",  "HT",
+        "LF",  "VT",  "FF",  "CR",  "SO",  "SI",  "DLE", "DC1", "DC2", "DC3",
+        "DC4", "NAK", "SYN", "ETB", "CAN", "EM",  "SUB", "ESC", "FS",  "GS",
+        "RS",  "US",  "SP",  "!",   "\"",  "#",   "$",   "%",   "&",   "'",
+        "(",   ")",   "*",   "+",   ",",   "-",   ".",   "/",   "0",   "1",
+        "2",   "3",   "4",   "5",   "6",   "7",   "8",   "9",   ":",   ";",
+        "<",   "=",   ">",   "?",   "@",   "A",   "B",   "C",   "D",   "E",
+        "F",   "G",   "H",   "I",   "J",   "K",   "L",   "M",   "N",   "O",
+        "P",   "Q",   "R",   "S",   "T",   "U",   "V",   "W",   "X",   "Y",
+        "Z",   "[",   "\\",  "]",   "^",   "_",   "`",   "a",   "b",   "c",
+        "d",   "e",   "f",   "g",   "h",   "i",   "j",   "k",   "l",   "m",
+        "n",   "o",   "p",   "q",   "r",   "s",   "t",   "u",   "v",   "w",
+        "x",   "y",   "z",   "{",   "|",   "}",   "~",   "DEL",
 };
 #endif
 
@@ -67,134 +66,134 @@ static const char *REPR[] = {
 
 /* Ascii description of all 7-bit value */
 static const char *DESC[] = {
-    "Null character",
-    "Start of Heading",
-    "Start of Text",
-    "End of Text",
-    "End of Transmission",
-    "Enquiry",
-    "Acknowledge",
-    "Bell, Alert",
-    "Backspace",
-    "Horizontal Tab",
-    "Line Feed",
-    "Vertical Tabulation",
-    "Form Feed",
-    "Carriage Return",
-    "Shift Out",
-    "Shift In",
-    "Data Link Escape",
-    "Device Control One (XON)",
-    "Device Control Two",
-    "Device Control Three (XOFF)",
-    "Device Control Four",
-    "Negative Acknowledge",
-    "Synchronous Idle",
-    "End of Transmission Block",
-    "Cancel",
-    "End of medium",
-    "Substitute",
-    "Escape",
-    "File Separator",
-    "Group Separator",
-    "Record Separator",
-    "Unit Separator",
-    "Space",
-    "Exclamation mark",
-    "Double quotes (or speech marks)",
-    "Number sign",
-    "Dollar",
-    "Per cent sign",
-    "Ampersand",
-    "Single quote",
-    "Open parenthesis (or open bracket)",
-    "Close parenthesis (or close bracket)",
-    "Asterisk",
-    "Plus",
-    "Comma",
-    "Hyphen-minus",
-    "Period, dot or full stop",
-    "Slash or divide",
-    "Zero",
-    "One",
-    "Two",
-    "Three",
-    "Four",
-    "Five",
-    "Six",
-    "Seven",
-    "Eight",
-    "Nine",
-    "Colon",
-    "Semicolon",
-    "Less than (or open angled bracket)",
-    "Equals",
-    "Greater than (or close angled bracket)",
-    "Question mark",
-    "At sign",
-    "Uppercase A",
-    "Uppercase B",
-    "Uppercase C",
-    "Uppercase D",
-    "Uppercase E",
-    "Uppercase F",
-    "Uppercase G",
-    "Uppercase H",
-    "Uppercase I",
-    "Uppercase J",
-    "Uppercase K",
-    "Uppercase L",
-    "Uppercase M",
-    "Uppercase N",
-    "Uppercase O",
-    "Uppercase P",
-    "Uppercase Q",
-    "Uppercase R",
-    "Uppercase S",
-    "Uppercase T",
-    "Uppercase U",
-    "Uppercase V",
-    "Uppercase W",
-    "Uppercase X",
-    "Uppercase Y",
-    "Uppercase Z",
-    "Opening bracket",
-    "Backslash",
-    "Closing bracket",
-    "Caret - circumflex",
-    "Underscore",
-    "Grave accent",
-    "Lowercase a",
-    "Lowercase b",
-    "Lowercase c",
-    "Lowercase d",
-    "Lowercase e",
-    "Lowercase f",
-    "Lowercase g",
-    "Lowercase h",
-    "Lowercase i",
-    "Lowercase j",
-    "Lowercase k",
-    "Lowercase l",
-    "Lowercase m",
-    "Lowercase n",
-    "Lowercase o",
-    "Lowercase p",
-    "Lowercase q",
-    "Lowercase r",
-    "Lowercase s",
-    "Lowercase t",
-    "Lowercase u",
-    "Lowercase v",
-    "Lowercase w",
-    "Lowercase x",
-    "Lowercase y",
-    "Lowercase z",
-    "Opening brace",
-    "Vertical bar",
-    "Closing brace",
-    "Equivalency sign - tilde",
-    "Delete",
+        "Null character",
+        "Start of Heading",
+        "Start of Text",
+        "End of Text",
+        "End of Transmission",
+        "Enquiry",
+        "Acknowledge",
+        "Bell, Alert",
+        "Backspace",
+        "Horizontal Tab",
+        "Line Feed",
+        "Vertical Tabulation",
+        "Form Feed",
+        "Carriage Return",
+        "Shift Out",
+        "Shift In",
+        "Data Link Escape",
+        "Device Control One (XON)",
+        "Device Control Two",
+        "Device Control Three (XOFF)",
+        "Device Control Four",
+        "Negative Acknowledge",
+        "Synchronous Idle",
+        "End of Transmission Block",
+        "Cancel",
+        "End of medium",
+        "Substitute",
+        "Escape",
+        "File Separator",
+        "Group Separator",
+        "Record Separator",
+        "Unit Separator",
+        "Space",
+        "Exclamation mark",
+        "Double quotes (or speech marks)",
+        "Number sign",
+        "Dollar",
+        "Per cent sign",
+        "Ampersand",
+        "Single quote",
+        "Open parenthesis (or open bracket)",
+        "Close parenthesis (or close bracket)",
+        "Asterisk",
+        "Plus",
+        "Comma",
+        "Hyphen-minus",
+        "Period, dot or full stop",
+        "Slash or divide",
+        "Zero",
+        "One",
+        "Two",
+        "Three",
+        "Four",
+        "Five",
+        "Six",
+        "Seven",
+        "Eight",
+        "Nine",
+        "Colon",
+        "Semicolon",
+        "Less than (or open angled bracket)",
+        "Equals",
+        "Greater than (or close angled bracket)",
+        "Question mark",
+        "At sign",
+        "Uppercase A",
+        "Uppercase B",
+        "Uppercase C",
+        "Uppercase D",
+        "Uppercase E",
+        "Uppercase F",
+        "Uppercase G",
+        "Uppercase H",
+        "Uppercase I",
+        "Uppercase J",
+        "Uppercase K",
+        "Uppercase L",
+        "Uppercase M",
+        "Uppercase N",
+        "Uppercase O",
+        "Uppercase P",
+        "Uppercase Q",
+        "Uppercase R",
+        "Uppercase S",
+        "Uppercase T",
+        "Uppercase U",
+        "Uppercase V",
+        "Uppercase W",
+        "Uppercase X",
+        "Uppercase Y",
+        "Uppercase Z",
+        "Opening bracket",
+        "Backslash",
+        "Closing bracket",
+        "Caret - circumflex",
+        "Underscore",
+        "Grave accent",
+        "Lowercase a",
+        "Lowercase b",
+        "Lowercase c",
+        "Lowercase d",
+        "Lowercase e",
+        "Lowercase f",
+        "Lowercase g",
+        "Lowercase h",
+        "Lowercase i",
+        "Lowercase j",
+        "Lowercase k",
+        "Lowercase l",
+        "Lowercase m",
+        "Lowercase n",
+        "Lowercase o",
+        "Lowercase p",
+        "Lowercase q",
+        "Lowercase r",
+        "Lowercase s",
+        "Lowercase t",
+        "Lowercase u",
+        "Lowercase v",
+        "Lowercase w",
+        "Lowercase x",
+        "Lowercase y",
+        "Lowercase z",
+        "Opening brace",
+        "Vertical bar",
+        "Closing brace",
+        "Equivalency sign - tilde",
+        "Delete",
 };
 #endif
 
@@ -215,13 +214,13 @@ void __kh_sudo_append(char *str);
  * See kh_has_ctrl and related. */
 typedef enum
 {
-    NO_MOD     = 0,
-    CTRL_MOD   = 1 << 1,
-    SHIFT_MOD  = 1 << 2,
-    ALT_MOD    = 1 << 3,
-    SUPR_MOD   = 1 << 4,
-    IS_ARROW   = 1 << 5,
-    IS_INVALID = 1 << 6,
+        NO_MOD = 0,
+        CTRL_MOD = 1 << 1,
+        SHIFT_MOD = 1 << 2,
+        ALT_MOD = 1 << 3,
+        SUPR_MOD = 1 << 4,
+        IS_ARROW = 1 << 5,
+        IS_INVALID = 1 << 6,
 } Mods;
 
 /* Keypress return a character with the mods used.
@@ -231,15 +230,18 @@ typedef enum
  * inside Keypress */
 typedef struct
 {
-    char c;
-    Mods mods;
+        char c;
+        Mods mods;
 } Keypress;
 
-#define INVALID_KP \
-    (Keypress) { .c = 0, .mods = IS_INVALID, }
+#define INVALID_KP                          \
+        (Keypress)                          \
+        {                                   \
+                .c = 0, .mods = IS_INVALID, \
+        }
 
 /***************************************************
- * ---| VSHHK interface (keyboard.c)          |--- *
+ * ---| VSHKH interface (keyboard.c)          |--- *
  ***************************************************/
 
 /* The keyboard handler would be initialized in
@@ -307,8 +309,8 @@ typedef void (*BindFunc)(void);
  * array of keypresses, NULL terminated. */
 typedef struct
 {
-    Keypress kp[KEYBINDLEN + 1]; // all keypresses have to be valid
-    BindFunc func;               // function that is going to be executed
+        Keypress kp[KEYBINDLEN + 1]; // all keypresses have to be valid
+        BindFunc func; // function that is going to be executed
 } Keybind;
 
 #define INVALID_KB (Keybind){ 0 }
@@ -372,13 +374,13 @@ Keybind kh_bind_parse(const char *str);
 /* This macro can be used to allow user create a new
  * bind without write a lot. It is only a wrapper for
  * previos declared functions */
-#define kh_bind_create(str, action)            \
-    do                                         \
-    {                                          \
-        Keybind __kb__ = kh_bind_parse((str)); \
-        kh_bind_set_func(&__kb__, (action));   \
-        kh_bind_add(__kb__);                   \
-    } while (0)
+#define kh_bind_create(str, action)                    \
+        do                                             \
+        {                                              \
+                Keybind __kb__ = kh_bind_parse((str)); \
+                kh_bind_set_func(&__kb__, (action));   \
+                kh_bind_add(__kb__);                   \
+        } while (0)
 
 
 /***************************************************
@@ -387,11 +389,11 @@ Keybind kh_bind_parse(const char *str);
 
 typedef enum
 {
-    NO_ARROW = 0,
-    ARROW_UP,
-    ARROW_DOWN,
-    ARROW_RIGHT,
-    ARROW_LEFT,
+        NO_ARROW = 0,
+        ARROW_UP,
+        ARROW_DOWN,
+        ARROW_RIGHT,
+        ARROW_LEFT,
 } Arrowkey;
 
 /* Return one of the values above.
@@ -417,9 +419,15 @@ int kh_valid_kp(Keypress);
 int kb_is_equal(Keybind, Keybind);
 int kp_is_equal(Keypress, Keypress);
 
+/* Return 1 if KB starts with PREFIX or 0 */
+int kb_left_match(Keybind prefix, Keybind kb);
+
+int kb_len(Keybind kb);
+
 /* Print to stdout the representation using special
  * characters to represent mods (see parsing format) */
 void kh_repr_kp(Keypress);
+
 
 /***************************************************
  * ---| Array (dynarray.c)                    |--- *
@@ -434,11 +442,11 @@ void kh_repr_kp(Keypress);
 
 typedef struct
 {
-    int length;     /* Number of elements in buffer. */
-    int alloc_size; /* Size of data, max number of elements
-                     * that can be stored in data without
-                     * overflow */
-    Keybind *data;  /* Elements in the buffer */
+        int length; /* Number of elements in buffer. */
+        int alloc_size; /* Size of data, max number of elements
+                         * that can be stored in data without
+                         * overflow */
+        Keybind *data; /* Elements in the buffer */
 } Array;
 
 /* Array grow as
@@ -498,13 +506,13 @@ void array_destroy();
 
 typedef struct
 {
-    int       length;  /* Number of elements in buffer. */
-    Keypress *data;    /* Elements in the buffer */
-    Keypress *out_ptr; /* Pointer to next element that have
-                        * to be processed */
-    Keypress *in_ptr;  /* Pointer to the next position
-                        * where a new element have to
-                        * be stored */
+        int length; /* Number of elements in buffer. */
+        Keypress *data; /* Elements in the buffer */
+        Keypress *out_ptr; /* Pointer to next element that have
+                            * to be processed */
+        Keypress *in_ptr; /* Pointer to the next position
+                           * where a new element have to
+                           * be stored */
 } Buffer;
 
 /* As this buffer is not going to be used more than

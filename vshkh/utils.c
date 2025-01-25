@@ -47,12 +47,35 @@ kp_is_equal(Keypress kp1, Keypress kp2)
         return kp1.c == kp2.c && kp1.mods == kp2.mods;
 }
 
+int
+kb_len(Keybind kb)
+{
+        for (int i = 0; i < KEYBINDLEN; i++)
+                if (kp_is_equal(kb.kp[i], INVALID_KP))
+                        return i;
+
+        return KEYBINDLEN;
+}
+
+int
+kb_left_match(Keybind prefix, Keybind kb)
+{
+        for (int i = 0; i < kb_len(prefix); i++)
+                if (!kp_is_equal(kb.kp[i], prefix.kp[i]))
+                        return 0;
+        return 1;
+}
+
 /* Check if keypresses of both keybinds are the same,
  * return 0 is they are not equal, != 0 otherwise */
 int
 kb_is_equal(Keybind kb1, Keybind kb2)
 {
-        for (int i = 0; i < KEYBINDLEN; i++)
+        int len = kb_len(kb1);
+        if (len != kb_len(kb2))
+                return 0;
+
+        for (int i = 0; i < len; i++)
         {
                 if (!kp_is_equal(kb1.kp[i], kb2.kp[i]))
                         return 0;
@@ -95,18 +118,18 @@ kh_repr_kp(Keypress kp)
         if (kh_is_arrow(kp))
                 switch (kp.c)
                 {
-                        case ARROW_UP:
-                                printf("");
-                                break;
-                        case ARROW_DOWN:
-                                printf("");
-                                break;
-                        case ARROW_LEFT:
-                                printf("");
-                                break;
-                        case ARROW_RIGHT:
-                                printf("");
-                                break;
+                case ARROW_UP:
+                        printf("");
+                        break;
+                case ARROW_DOWN:
+                        printf("");
+                        break;
+                case ARROW_LEFT:
+                        printf("");
+                        break;
+                case ARROW_RIGHT:
+                        printf("");
+                        break;
                 }
 
         else

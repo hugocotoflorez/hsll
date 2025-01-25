@@ -27,7 +27,8 @@ static void __grow();
 /* Pop the element at index I. Index I have to be valid.*/
 static Keybind __pop(int i);
 
-/* Insert an element, dont change any variable or check anything */
+/* Insert an element, dont change any variable or check anything.
+ * This function dont increment array size */
 static Keybind __insert(Keybind *kbptr, Keybind kb);
 
 /* Add a keybind to the buffer and
@@ -35,12 +36,8 @@ static Keybind __insert(Keybind *kbptr, Keybind kb);
 static Keybind __array_add_unsafe(Keybind kb);
 
 static inline Keybind
-__insert(Keybind *kbptr, // Pointer to a data-array position
-                         // where KB is going to be inserted
-         Keybind kb // Keybind that is going to be inserted
-)
+__insert(Keybind *kbptr, Keybind kb)
 {
-        /* This function dont increment array size */
         return (*kbptr = kb);
 }
 
@@ -72,16 +69,12 @@ static Keybind *
 __get_empty()
 {
         if (kb_array.alloc_size == kb_array.length)
-        {
                 /* return the first empty keybind from data array. It returns
                  * NULL if no invalid entry were found */
                 return __get_invalid();
-        }
         else
-        {
                 /* Return the last empty position and increment length */
                 return kb_array.data + kb_array.length++;
-        }
         return NULL;
 }
 
@@ -135,7 +128,7 @@ array_new()
 
 /* Add a keybind to the buffer and
  * return added keybind. Thread-unsafe */
-Keybind
+static Keybind
 __array_add_unsafe(Keybind kb)
 {
         Keybind *cell = __get_empty();
@@ -210,4 +203,17 @@ array_destroy()
         // set all fields as unset
         kb_array = (Array) { 0 };
         pthread_mutex_unlock(&mutex);
+}
+
+/* Return the number of kb with
+ * whe same prefix */
+int
+array_prefix_get(Keybind prefix)
+{
+        int counter = 0;
+        for (int i = 0; i < kb_array.length; i++)
+                /* Return the address of the keybind if its invalid */
+                if (kb_left_match(prefix, kb_array.data[i]))
+                        ++counter;
+        return counter;
 }

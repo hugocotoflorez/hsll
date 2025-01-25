@@ -2,7 +2,6 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include <sched.h>
-#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
@@ -109,13 +108,11 @@ __kp_action(Keypress kp)
         kb = kh_bind_new();
         kh_bind_append(&kb, kp);
 
-        func = kh_bind_get(kb);
-        if (func)
+        if ((func = kh_bind_get(kb)))
                 func();
         else
                 buffer_add(kp);
 }
-
 
 /* Given a char return the default keypress
  * it only check for single chars (ctrl, shift)
@@ -154,8 +151,8 @@ __get_kp_from_char(char c)
 
 /* Temporal? given a raw read char, assign it to a keypress
  * and take the action related to the keypress */
-static void
-__analize(char c)
+inline static void
+__kp_action_from_char(char c)
 {
         __kp_action(__get_kp_from_char(c));
 }
@@ -208,10 +205,10 @@ __supr_get_char(Keypress *kp, int supr_mod, int supr_key)
         case 0x3: // arrow + alt
         case 0x4: // arrow + alt + shift
         case 0x8: // arrow + ctrl + alt + shift
-        case 0xA: // supr + shift
-        case 0xC: // supr + shift + alt
-        case 0xE: // supr + shift + ctrl
-        case 0x10: // supr + shift + ctrl + alt
+        case 0xA: // shift
+        case 0xC: // shift + alt
+        case 0xE: // shift + ctrl
+        case 0x10: // shift + ctrl + alt
                 kp->c = supr_shift_lookup[supr_key];
                 break;
 
@@ -369,9 +366,9 @@ __esc_special(char *buf)
                 }
 
         __normal__:
-                __analize(buf[0]);
-                __analize(buf[1]);
-                __analize(buf[2]);
+                __kp_action_from_char(buf[0]);
+                __kp_action_from_char(buf[1]);
+                __kp_action_from_char(buf[2]);
 
                 return;
 
@@ -394,7 +391,7 @@ __esc_special(char *buf)
 
         case 0: // no input
         case -1: // eof -> no input
-                __analize(buf[0]);
+                __kp_action_from_char(buf[0]);
                 break;
 
         default:
@@ -462,7 +459,7 @@ __keyboard_handler()
                                         __esc_special(buf);
 
                                 else
-                                        __analize(*buf);
+                                        __kp_action_from_char(*buf);
 
                                 break;
                         }

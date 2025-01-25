@@ -83,7 +83,7 @@ get_hist_entry(int offset)
 void
 hist_append(char *entry)
 {
-        strcpy(hist[entry_ptr], entry);
+        strncpy(hist[entry_ptr], entry, LINELEN - 3);
 
         if (!entry_ptr--)
                 entry_ptr = HIST_SIZE - 1;
