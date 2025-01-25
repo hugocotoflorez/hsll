@@ -330,10 +330,7 @@ tab_suggestions()
                                out_list[0] + strlen(directory_sep + 1));
                         printf("%s", out_list[0] + strlen(directory_sep + 1));
 
-                        /* This code looks like a lazy way to check if a file is
-                         * a folder, but in the 99% of the cases it work fine.
-                         * For those filenames without extension, just press
-                         * backspace after completion is done. */
+                        /* Check if competion is a file or folder */
                         if (is_file(out_list[0]))
                         {
                                 strcat(get_buffered_input(), " ");
