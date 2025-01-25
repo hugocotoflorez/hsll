@@ -16,8 +16,7 @@ static int
 is_file(const char *name)
 {
         struct stat path_stat;
-        stat(name, &path_stat);
-        return S_ISREG(path_stat.st_mode);
+        return stat(name, &path_stat) ?: !S_ISDIR(path_stat.st_mode);
 }
 
 static int
