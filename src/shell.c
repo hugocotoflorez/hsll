@@ -40,7 +40,7 @@ quit_handler()
 }
 
 void
-__change_env(const char *name, char *value)
+__change_env(const char *name, const char *value)
 {
         setenv(name, value, 1);
 }
@@ -68,8 +68,10 @@ hsll_init()
 
         out = execute_get_output((char *[]) { "which", "hsll", NULL });
         if (out)
+        {
                 __change_env("SHELL", out);
-        free(out);
+                free(out);
+        }
 
 
         if (signal(SIGTERM, quit_handler) == SIG_ERR)

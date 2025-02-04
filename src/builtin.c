@@ -17,7 +17,9 @@ builtin_cd(char **command)
 {
         int count = 0;
         while (command[count])
+        {
                 ++count;
+        }
 
         return cd(count, command);
 }

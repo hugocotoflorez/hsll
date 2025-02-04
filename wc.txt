@@ -1,13 +1,13 @@
-    61    112   1149 src/builtin.c
+    63    114   1169 src/builtin.c
    108    283   3147 src/cd.c
    419   1293  12120 src/completion.c
-   257    800   7666 src/execute.c
+   271    854   8266 src/execute.c
    277    786   7894 src/expansions.c
    104    230   2256 src/history.c
     25     60    583 src/hsll.c
    243    713   5668 src/hstring.c
    214    446   5881 src/io.c
-    96    218   2310 src/shell.c
+    98    221   2344 src/shell.c
     30     71    629 vshcfp/function.c
    137    352   3158 vshcfp/hashtable.c
    260    679   7237 vshcfp/parser.c
@@ -17,7 +17,7 @@
    607   2536  19040 vshkh/keyboard.c
    163    437   3597 vshkh/utils.c
     36    169   1186 include/hcf_hashmap.h
-    68    173   1520 include/hsll.h
+    68    173   1527 include/hsll.h
     44    209   1268 include/vshcfp.h
    550   2184  17346 include/vshkh.h
-  4258  13295 117019 total
+  4276  13354 117680 total

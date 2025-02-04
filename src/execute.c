@@ -50,13 +50,16 @@ execute_raw(char **command, int *__stdin, int *__stdout)
 
         /* Check for & in the command. If it is the last argument
          * set the async variable as true */
-        if (len > 2 && !strcmp(command[len - 1], "&"))
+        if (len >= 2 && !strcmp(command[len - 1], "&"))
         {
-                command[len - 1] = NULL;
+                command[len - 1] = NULL; // delete & char
+                --len;
+                /*
                 printf("Async: ");
                 for (int i = 0; command[i]; ++i)
                         printf("%s ", command[i]);
                 puts("");
+                 */
                 async = 1;
         }
 
@@ -87,22 +90,33 @@ execute_raw(char **command, int *__stdin, int *__stdout)
                 if (is_builtin_command(command))
                         exit(exec_builtin_command(command));
 
-                /* Exception: executed in parent */
-                if (!strcmp(command[0], "cd"))
+                if (!strcmp(command[0], "cd") || !strcmp(command[0], "alias"))
+                {
+                        /* Exception: executed in parent if not async*/
+                        if (async)
+                                /* Althought both commands should be executed in parent,
+                                 * as they are launched in background It would be
+                                 * executed here so parent can not wait for it. Parent
+                                 * should not have the changes done here. */
+                                exec_builtin_command(command);
                         exit(0);
-                if (!strcmp(command[0], "alias"))
-                        exit(0);
+                }
 
                 execvp(command[0], command);
                 perror(command[0]);
                 exit(1);
 
         default:
-                if (!strcmp(command[0], "cd") || !strcmp(command[0], "alias"))
-                        exec_builtin_command(command);
 
                 if (!async)
+                {
                         waitpid(child, &exit_status, 0);
+
+                        if (!strcmp(command[0], "cd") ||
+                            !strcmp(command[0], "alias"))
+                                exec_builtin_command(command);
+                }
+
                 kh_set_raw();
 
                 child = 0;

@@ -23,7 +23,7 @@ int execute(char **command, int *__stdin, int *__stdout);
 char *execute_get_output(char **command);
 void kill_child();
 
-/* builtin.c */
+/* ../src/builtin.c */
 int is_builtin_command(char **command);
 int exec_builtin_command(char **command);
 
