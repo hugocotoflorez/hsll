@@ -5,27 +5,20 @@
 #define FLAGS "-Wall", "-Wextra"
 #define INC "-Iinclude"
 #define OUT "hsll"
-#define OBJ_DIR "objs"
+#define OBJ_DIR "objects"
 
 int
 main(int argc, char *argv[])
 {
-        frog_da_str files = { 0 };
         frog_rebuild_itself(argc, argv);
 
-        frog_filter_files(&files, "./src", ".*.c");
-        frog_cmd_foreach(files, CC, FLAGS, INC, "-c", NULL);
+        frog_cmd_filtered_foreach("src", ".*.c", CC, FLAGS, INC, "-c");
+        frog_cmd_filtered_foreach("vshkh", ".*.c", CC, FLAGS, INC, "-c");
+        frog_cmd_filtered_foreach("vshcfp", ".*.c", CC, FLAGS, INC, "-c");
 
-        files.size = 0;
-        frog_filter_files(&files, "./vshkh", ".*.c");
-        frog_cmd_foreach(files, CC, FLAGS, INC, "-c", NULL);
-
-        files.size = 0;
-        frog_filter_files(&files, "./vshcfp", ".*.c");
-        frog_cmd_foreach(files, CC, FLAGS, INC, "-c", NULL);
-
-        frog_cmd_wait("sh", "-c", "mv *.o " OBJ_DIR, NULL);
-        frog_cmd_wait("sh", "-c", "gcc objs/*.o -o" OUT, NULL);
+        frog_makedir(OBJ_DIR);
+        frog_shell_cmd( "mv *.o " OBJ_DIR);
+        frog_shell_cmd( "gcc " OBJ_DIR "/*.o -o" OUT);
 
         return 0;
 }
