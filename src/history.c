@@ -11,7 +11,6 @@ int
 hist_load(const char *filename)
 {
         FILE *file;
-        ssize_t n;
         char buf[LINELEN];
 
         /* Initialize hsit to zeros to avoid UB at reading
@@ -73,7 +72,6 @@ get_hist_entry(int offset)
                 offset = HIST_SIZE;
 
         entry = (offset + entry_ptr) % HIST_SIZE;
-        // printf("[%d] GET HIST[%d] = %s\n", getpid(), entry, hist[entry]);
         return hist[entry];
 }
 
@@ -81,7 +79,6 @@ void
 hist_reverse_append(char *entry)
 {
         strncpy(hist[entry_ptr], entry, LINELEN - 3);
-        // printf("[%d] APPEND HIST[%d] = %s\n", getpid(), entry_ptr, hist[entry_ptr]);
 
         if (++entry_ptr == HIST_SIZE)
                 entry_ptr = 0;
@@ -91,7 +88,6 @@ void
 hist_append(char *entry)
 {
         strncpy(hist[entry_ptr], entry, LINELEN - 3);
-        // printf("[%d] APPEND HIST[%d] = %s\n", getpid(), entry_ptr, hist[entry_ptr]);
 
         if (!entry_ptr--)
                 entry_ptr = HIST_SIZE - 1;

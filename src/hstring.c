@@ -210,10 +210,7 @@ argv_extend(char ***dest, char **src)
         int len_dest;
 
         if (!*dest || !src)
-        {
-                ////printf("NULL dest or src\n");
                 return *dest;
-        }
 
         for (len_dest = 0; (*dest)[len_dest]; ++len_dest)
                 ;

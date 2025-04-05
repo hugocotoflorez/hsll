@@ -52,7 +52,7 @@ get_cursor_position(int *row, int *col)
         /* Ask the terminal using \033[6n
          * it should force a response in the form of
          * \033['ROWS';'COLS'R that is parsed. It return
-         * 0 un sucess or < 0 (not -1) if fails. */
+         * 0 on sucess or < 0 (not -1) if it fails. */
         char response[16] = { 0 };
 
         write(STDOUT_FILENO, "\033[6n", 4);
