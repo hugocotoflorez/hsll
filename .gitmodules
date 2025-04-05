@@ -1,0 +1,3 @@
+[submodule "thirdparty/frog"]
+	path = thirdparty/frog
+	url = https://github.com/hugocotoflorez/frog
