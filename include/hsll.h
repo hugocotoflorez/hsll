@@ -15,7 +15,7 @@ char *get_buffered_input();
 /* ../src/shell.c */
 int hsll_init();
 void print_prompt();
-void quit_handler();
+void quit_handler(int);
 HcfField *get_aliases();
 
 /* ../src/execute.c */

@@ -1,0 +1,10 @@
+Los kb estan mal planteados. Deberia borrar
+todo lo relacionado con los kb y implementar un
+PT de kp. Las hojas del PT son las funciones
+asociadas al pseudo kb que unicamente existiria dentro
+del arbol. Desde el kh se recorre el arbol y si no se llega
+hasta un nodo asociado a una funcion sin continuacion o
+donde ninguna de las continuaciones posibles coincide con
+la necesaria se ejecuta la funcion. De esta manera de permite
+reducir la sobrecarga que causan los kb y mejorar el rendimiento,
+ademas de permitir kb multi pulsacion.

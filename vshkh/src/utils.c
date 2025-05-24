@@ -75,8 +75,7 @@ kb_is_equal(Keybind kb1, Keybind kb2)
         if (len != kb_len(kb2))
                 return 0;
 
-        for (int i = 0; i < len; i++)
-        {
+        for (int i = 0; i < len; i++) {
                 if (!kp_is_equal(kb1.kp[i], kb2.kp[i]))
                         return 0;
         }
@@ -116,8 +115,7 @@ kh_repr_kp(Keypress kp)
                 printf("⇧");
 
         if (kh_is_arrow(kp))
-                switch (kp.c)
-                {
+                switch (kp.c) {
                 case ARROW_UP:
                         printf("");
                         break;
@@ -160,4 +158,48 @@ get_arrow_str(Arrowkey arrow, Mods mods, char *str)
                 str[i] -= 'a' - 'A';
 
         return str;
+}
+
+/* Get the representation form of KB and store it in S */
+char *
+kb_repr(Keybind kb, char *s)
+{
+        Keypress kp;
+        int s_index = 0;
+        for (int i = 0; i < KEYBINDLEN; i++) {
+                kp = kb.kp[i];
+                if (kh_has_supr(kp))
+                        s[s_index++] = '@';
+
+                if (kh_has_ctrl(kp))
+                        s[s_index++] = '^';
+
+                if (kh_has_alt(kp))
+                        s[s_index++] = '&';
+
+                if (kh_is_arrow(kp)) {
+                        s[s_index++] = '#';
+                        switch (kp.c) {
+                        case ARROW_UP:
+                                s[s_index++] = 'a';
+                                break;
+                        case ARROW_DOWN:
+                                s[s_index++] = 'b';
+                                break;
+                        case ARROW_LEFT:
+                                s[s_index++] = 'c';
+                                break;
+                        case ARROW_RIGHT:
+                                s[s_index++] = 'd';
+                                break;
+                        }
+                }
+
+                else if (kh_has_shift(kp))
+                        s[s_index++] = kp.c + 'A' - 'a';
+                else
+                        s[s_index++] = kp.c;
+        }
+
+        return s;
 }

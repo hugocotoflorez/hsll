@@ -125,8 +125,7 @@ __get_kp_from_char(char c)
         kp.mods = NO_MOD;
         kp.c = c;
 
-        switch (c)
-        {
+        switch (c) {
         // control keypress
         case 0x0 ... 0x1F:
                 kp.mods |= (CTRL_MOD | SHIFT_MOD);
@@ -162,8 +161,7 @@ __kp_action_from_char(char c)
 static Keypress
 __get_arrow_kp(char c)
 {
-        switch (c)
-        {
+        switch (c) {
         case 'A':
                 return ((Keypress) {
                 .c = ARROW_UP,
@@ -337,8 +335,7 @@ __esc_special(char *buf)
         Keypress kp;
 
 
-        if (buf == NULL)
-        {
+        if (buf == NULL) {
                 printf("[DEBUG] NULL ENTRY\n");
                 return;
         }
@@ -346,8 +343,7 @@ __esc_special(char *buf)
         /* Get the remaining of the keypress and store it in
          * buf as if all was read together. Given the bytes read
          * it can be determined what is the type of the keypress */
-        switch (n = read(STDIN_FILENO, buf + 1, BUFSIZE - 1))
-        {
+        switch (n = read(STDIN_FILENO, buf + 1, BUFSIZE - 1)) {
         case 2:
                 /* All escape sequences start with \e[, so if the
                  * first characters appears but not the second it is not
@@ -359,8 +355,7 @@ __esc_special(char *buf)
                  * mods. (\e[A - \e[D representation ) If not,
                  * analize keypresses individually */
                 kp = __get_arrow_kp(buf[2]);
-                if (kh_valid_kp(kp))
-                {
+                if (kh_valid_kp(kp)) {
                         __kp_action(kp);
                         return;
                 }
@@ -414,18 +409,16 @@ __esc_special(char *buf)
  * and call the needed functions to execute the binded functions or
  * add keypresses to the buffer */
 static void *
-__keyboard_handler()
+__keyboard_handler(void*)
 {
         ssize_t n;
         char buf[BUFSIZE];
 
         kh_set_raw();
 
-        while (!QUIT)
-        {
+        while (!QUIT) {
                 if (ENABLED && !COOCKED)
-                        switch (n = read(STDIN_FILENO, buf, 1))
-                        {
+                        switch (n = read(STDIN_FILENO, buf, 1)) {
                         case -1:
                         case 0:
                                 /* If nothing was read, sleep a little
@@ -435,8 +428,7 @@ __keyboard_handler()
 
                         default: /* Something is read */
 
-                                if (COOCKED)
-                                {
+                                if (COOCKED) {
                                         buffer_add((Keypress) { .c = *buf, .mods = NO_MOD });
                                         break;
                                 }
@@ -502,8 +494,7 @@ __init__()
 void
 kh_set_coocked()
 {
-        if (!COOCKED)
-        {
+        if (!COOCKED) {
                 COOCKED = 1;
                 __disable_raw_mode();
         }
@@ -513,8 +504,7 @@ kh_set_coocked()
 void
 kh_set_raw()
 {
-        if (COOCKED)
-        {
+        if (COOCKED) {
                 COOCKED = 0;
                 __enable_raw_mode();
         }

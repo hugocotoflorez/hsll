@@ -1,6 +1,6 @@
 #define ASCII_TABLE_REPR
 #include "../include/hsll.h"
-#include "../include/vshkh.h"
+#include "../vshkh/include/vshkh.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

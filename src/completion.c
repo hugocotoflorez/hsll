@@ -1,5 +1,5 @@
 #include "../include/hsll.h"
-#include "../include/vshkh.h"
+#include "../vshkh/include/vshkh.h"
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
@@ -64,7 +64,7 @@ get_cursor_position(int *row, int *col)
 
 static struct winsize ws;
 static void
-get_winsize()
+get_winsize(int)
 {
         /* Get term size and cursor position */
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
@@ -73,7 +73,7 @@ get_winsize()
 __attribute__((constructor)) void
 __init_ws__()
 {
-        get_winsize();
+        get_winsize(0);
         signal(SIGWINCH, get_winsize);
 }
 

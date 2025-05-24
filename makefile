@@ -3,7 +3,7 @@ DBG = -O0 -fsanitize=address,null
 INC = -I./include
 LIB = $(wildcard ./include/*.h)
 OUT = hsll
-SRC = $(wildcard ./src/*.c ./vshkh/*.c ./vshcfp/*.c)
+SRC = $(wildcard ./src/*.c ./vshkh/src/*.c ./vshcfp/*.c)
 OBJ_DIR = ./objs
 OBJ = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
 

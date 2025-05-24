@@ -43,8 +43,7 @@ __move_forward(Keypress **ptr)
 static Keypress *
 __move_ptr(Keypress **ptr, int n)
 {
-        while (n--)
-        {
+        while (n--) {
                 if (!__move_forward(ptr))
                         return NULL;
         }
@@ -79,8 +78,7 @@ buffer_add(Keypress kp)
         pthread_mutex_lock(&mutex);
 
         /* Buffer is full */
-        if (kh_valid_kp(*kp_buf.in_ptr))
-        {
+        if (kh_valid_kp(*kp_buf.in_ptr)) {
                 pthread_mutex_unlock(&mutex);
                 return INVALID_KP;
         }
@@ -100,8 +98,7 @@ buffer_pop()
         Keypress kp;
         pthread_mutex_lock(&mutex);
 
-        if (!kh_valid_kp(*kp_buf.out_ptr))
-        {
+        if (!kh_valid_kp(*kp_buf.out_ptr)) {
                 pthread_mutex_unlock(&mutex);
                 return INVALID_KP;
         }
@@ -128,8 +125,7 @@ int
 buffer_chsize(int size)
 {
         pthread_mutex_lock(&mutex);
-        if (size > kp_buf.length)
-        {
+        if (size > kp_buf.length) {
                 kp_buf.data = realloc(kp_buf.data, sizeof(Keypress) * size);
                 kp_buf.out_ptr = kp_buf.data;
                 kp_buf.in_ptr = kp_buf.data;

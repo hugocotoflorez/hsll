@@ -1,5 +1,5 @@
 #include "../include/hsll.h"
-#include "../include/vshkh.h"
+#include "../vshkh/include/vshkh.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,10 +35,9 @@ kill_child()
 /* Execute a command. The command cant have pipes or anything that
  * would be not executed */
 static int
-execute_raw(char **command, int *__stdin, int *__stdout)
+execute_raw(char **command, int *__stdin, int *__stdout, int async)
 {
         int exit_status = 0;
-        int async = 0;
         int len = 0;
 
         if (!command || !command[0])
@@ -126,7 +125,7 @@ execute_raw(char **command, int *__stdin, int *__stdout)
 }
 
 static int
-execute_concat(char **command, int *__stdin, int *__stdout)
+execute_concat(char **command, int *__stdin, int *__stdout, int async)
 {
         char **to_exec = command;
         int ret_code = 0;
@@ -136,7 +135,7 @@ execute_concat(char **command, int *__stdin, int *__stdout)
                 if (!strcmp(command[i], "&&"))
                 {
                         command[i] = NULL;
-                        ret_code = execute_raw(to_exec, __stdin, __stdout);
+                        ret_code = execute_raw(to_exec, __stdin, __stdout, async);
                         to_exec = command + i + 1;
 
                         if (ret_code != 0)
@@ -146,12 +145,12 @@ execute_concat(char **command, int *__stdin, int *__stdout)
                 else if (!strcmp(command[i], ";"))
                 {
                         command[i] = NULL;
-                        ret_code = execute_raw(to_exec, __stdin, __stdout);
+                        ret_code = execute_raw(to_exec, __stdin, __stdout, async);
                         to_exec = command + i + 1;
                 }
         }
 
-        return execute_raw(to_exec, __stdin, __stdout);
+        return execute_raw(to_exec, __stdin, __stdout, async);
 }
 
 /* The string that is returned has the same size as strlen(output)
@@ -249,7 +248,7 @@ execute(char **command, int *__stdin, int *__stdout)
                         /* New stdout */
                         temp_stdout = fileno(tmpfile());
                         command[i] = NULL;
-                        ret_code = execute_concat(to_exec, &temp_stdin, &temp_stdout);
+                        ret_code = execute_concat(to_exec, &temp_stdin, &temp_stdout, 1);
                         to_exec = command + i + 1;
 
                         if (ret_code != 0)
@@ -264,7 +263,7 @@ execute(char **command, int *__stdin, int *__stdout)
                         lseek(temp_stdin, 0, SEEK_SET);
                 }
         }
-        ret_code = execute_concat(to_exec, &temp_stdin, __stdout);
+        ret_code = execute_concat(to_exec, &temp_stdin, __stdout, 0);
 
         close(temp_stdin);
         return ret_code;

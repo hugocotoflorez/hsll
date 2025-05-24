@@ -34,7 +34,7 @@ print_prompt()
 }
 
 void
-quit_handler()
+quit_handler(int)
 {
         __quit = 1;
 }
@@ -43,6 +43,11 @@ void
 __change_env(const char *name, const char *value)
 {
         setenv(name, value, 1);
+}
+
+void __kill_child_handler(int)
+{
+        kill_child();
 }
 
 int
@@ -76,7 +81,7 @@ hsll_init()
 
         if (signal(SIGTERM, quit_handler) == SIG_ERR)
                 goto __free_recurses_jmp__;
-        if (signal(SIGINT, kill_child) == SIG_ERR)
+        if (signal(SIGINT, __kill_child_handler) == SIG_ERR)
                 goto __free_recurses_jmp__;
 
         while (!__quit)

@@ -35,12 +35,13 @@ bash using `bash -c "some command"` and this shuld work fine.
 
 ## Compiling and installing
 
-### Using hbuild
+### Using frog
 
-- Requisites: [hbuild](https://github.com/hugocotoflorez/hbuild)
+- Requisites: [frog](https://github.com/hugocotoflorez/frog)
 
-- For installing globaly: `hbuild install`.
-- For compile locally: `hbuild compile`
+- Compile frog.c: `gcc frog.c -o frog`
+- For compile locally: `./frog`
+- For install globally: `./frog && cp hsll ~/.local/bin`
 
 ### Using make
 

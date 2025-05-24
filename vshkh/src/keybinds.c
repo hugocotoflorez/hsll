@@ -74,8 +74,7 @@ kh_bind_append(Keybind *kb, Keypress kp)
 void
 __get_arrow_by_char(char c, Keypress *kp)
 {
-        switch (c)
-        {
+        switch (c) {
         case 'A':
         case 'a':
                 kp->c = ARROW_UP;
@@ -116,10 +115,8 @@ kh_bind_parse(const char *str)
         printf("Creating keybind:\n");
 #endif
 
-        while (*str)
-        {
-                switch (*str)
-                {
+        while (*str) {
+                switch (*str) {
                 case '\\': // escape symbols
                         ++str;
                         kp.mods |= SHIFT_MOD;
